@@ -30,3 +30,20 @@ npm run dev        # http://localhost:3030
 The research-talk deck, full paper, and blog posts live in
 [github.com/abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot). This workshop deck is the
 hands-on "lab" companion to that overview.
+
+## Note: known quirks in the upstream PoC (and why they're instructive)
+
+The workshop runs on a lightly patched copy of the public
+[abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot) PoC. If you clone the **as-shipped**
+upstream and run it, you'll hit a few rough edges — each is a small, real RAG-security lesson:
+
+- **Hardcoded model** `llama3:8b-instruct-q5_0` in `llm_factory.py` → 404s every Ollama / LM Studio user.
+  *Fix in the workshop branch: read the model from config; add a generic OpenAI-compatible provider.*
+- **Forced `TRANSFORMERS_OFFLINE=1`** in `config.py` → a cold embedding cache throws a misleading
+  "no internet" error even when online. *Fix: make it opt-in.*
+- **A 6-word regex "success" metric** — the reported "80%" is 4/5 queries, a single run at temperature 0.7,
+  on a query set that leans toward the poison's own topic. Treat it as a demo, not a benchmark.
+- **`top_k=3` against a 4-document corpus** → the poison isn't always retrieved (the Q3 "clean" result is
+  a retrieval miss, not model resistance). *The workshop sets `top_k=4` so the demo is reproducible.*
+
+These are called out here rather than on a slide — they're facilitator/reader notes, not presentation content.

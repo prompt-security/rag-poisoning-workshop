@@ -11,7 +11,7 @@ drawings:
   persist: false
 transition: fade
 mdc: true
-colorSchema: dark
+colorSchema: light
 addons:
   - slidev-addon-asciinema
 fonts:
@@ -83,45 +83,50 @@ interchangeable. What changes the impact is not payload cleverness, it's what th
 -->
 
 ---
-layout: two-cols
-layoutClass: gap-8
----
 
 <div class="kicker">The next 90 minutes</div>
 
 # What you'll do today
 
-<v-clicks>
-
-- **Reproduce** the attack on your own endpoint
-- **Understand** why RAG is vulnerable *by construction*
-- **Weaponize** it — write your own payload
-- **Defeat** a naive defense with your own hands
-- **Prioritize** the defenses that actually bound the loss
-
-</v-clicks>
-
-::right::
-
-<div class="card mt-14">
-<div class="tag mb-3">By the time you leave, you can…</div>
-
+<div class="cols-2 mt-3">
+<div>
+<div class="tag mb-2">first, the foundation</div>
 <div class="small space-y-2">
 
-- explain to your team why *corpus-write = instruction-authoring*
-- point at the injected instruction inside a real assembled prompt
-- name the controls that matter and the ones that are theater
+- **Understand how RAG actually works** — retrieval, embeddings, how documents reach the prompt.
+- **Why RAG matters** — it's how most enterprise AI knows anything: assistants, support, docs, agents.
 
 </div>
 </div>
+<div>
+<div class="tag mb-2">then, hands-on</div>
+<div class="small space-y-2">
 
-<div class="mt-4 tiny muted">
-40 of these 90 minutes are hands-on. Slow inference is expected — we'll always be teaching while your model thinks.
+- **Reproduce** the attack on your own endpoint.
+- **Craft & weaponize** — write your own poisoned document.
+- **Defend** — see which controls actually reduce the risk, and which only look like they do.
+
+</div>
+</div>
+</div>
+
+<div v-click class="card mt-6">
+<div class="tag mb-2">By the time you leave, you can…</div>
+<div class="cols-3 small">
+<div>explain to your team why <em>writing to the corpus = writing the model's instructions</em></div>
+<div>point at the injected instruction inside a real assembled prompt</div>
+<div>name the defenses that bound the loss — and the ones that only look protective</div>
+</div>
+</div>
+
+<div class="mt-3 tiny muted">
+~30 minutes are hands-on. Slow inference is expected — we'll always be teaching while your model thinks.
 </div>
 
 <!--
-Set the promise explicitly. This is not a talk with a demo; it's a lab with framing. Manage the latency
-expectation now so nobody thinks a 20s wait is a crash.
+Lead with RAG understanding and why RAG matters — that's the foundation, not an afterthought. The
+outcomes box appears on a click, last. "Controls that only look protective" replaces the "theater"
+jargon: content filters / delimiter tricks look like protection but an attacker routes around them.
 -->
 
 ---
@@ -130,27 +135,32 @@ layout: center
 
 <div class="kicker">Before we teach — 90 seconds</div>
 
-# Is your endpoint green?
+# Is your own endpoint up?
 
-<div class="term mt-4 text-left max-w-3xl mx-auto">
-<span class="c-prompt">$</span> python test_setup.py --no-local   <span class="c-mut"># checks deps + cached embeddings</span>
-<br/><span class="c-prompt">$</span> curl -s $OLLAMA_BASE_URL/v1/models   <span class="c-mut"># checks your endpoint answers</span>
+<div class="muted small text-center mb-3">
+Everyone runs a model <strong>locally, on their own machine</strong> — llama-server, Ollama, or LM Studio. No shared server; your laptop, your endpoint.
+</div>
+
+<div class="term text-left max-w-3xl mx-auto">
+<span class="c-prompt">$</span> python test_setup.py --no-local   <span class="c-mut"># deps + cached embeddings</span>
+<br/><span class="c-prompt">$</span> curl -s $OLLAMA_BASE_URL/v1/models   <span class="c-mut"># your local model is serving</span>
 <br/><br/><span class="c-clean">✅ embeddings cached (dim 384)</span> <span class="c-mut">·</span> <span class="c-clean">✅ endpoint reachable</span>
 </div>
 
-<div class="cols-3 mt-6 text-left">
-<div class="card"><div class="tag tag-clean mb-1">green</div><div class="small">Both checks pass? You're ready.</div></div>
-<div class="card"><div class="tag tag-warn mb-1">red</div><div class="small">Switch <code>.env</code> to the shared endpoint (one line) → re-run.</div></div>
-<div class="card"><div class="tag mb-1">still red</div><div class="small">Pair with a green neighbor. A TA will reach you.</div></div>
+<div class="cols-3 mt-4 text-left text-sm">
+<div class="card"><div class="tag tag-clean mb-1">both pass</div><div class="small">You're ready. Nothing else to do.</div></div>
+<div class="card"><div class="tag tag-warn mb-1">endpoint red</div><div class="small">Is your server running? Base URL a <strong>bare origin</strong> — no <code>/v1</code>, no trailing slash.</div></div>
+<div class="card"><div class="tag mb-1">still stuck</div><div class="small">Flag a TA and pair with a neighbor while you fix it.</div></div>
 </div>
 
-<div class="mt-6 text-center">
-<span class="tag">shared fallback</span> &nbsp; <code>OLLAMA_BASE_URL=http://&lt;INSTRUCTOR_IP&gt;:8080</code> &nbsp; <span class="muted tiny">bare origin — no /v1, no trailing slash</span>
+<div class="mt-4 text-center tiny muted">
+Pick a model that fits <em>your</em> machine: a <strong>3B instruct</strong> (qwen2.5:3b / llama3.2:3b) is the sweet spot — big enough to follow injected instructions, small enough to be fast, context ≥ 2048 so the retrieved chunks aren't truncated. Under ~1.5B is too erratic; reasoning/"thinking" models break the demo.
 </div>
 
 <!--
-100+ room: do NOT try to debug laptops individually. Green → ready. Red → shared IP. Still red → pair.
-TAs roam. We move at minute 8 regardless; nobody is empty-handed because every beat has a recorded fallback.
+No shared/instructor endpoint — every participant runs their own. The model-fit line is the guidance:
+3B instruct, ctx >= 2048, avoid sub-1.5B and thinking models. Full recipes are on the endpoint cheat card.
+Anyone still red pairs with a neighbor and uses the recorded run as reference; we move on at minute 8.
 -->
 
 ---
@@ -489,17 +499,19 @@ layout: center
 
 # Recorded: clean → poisoned, end to end
 
-<div class="asciinema-player-wrapper mt-2">
-<Asciinema src="/hidden_parrot_rec" :playerProps="{ speed: 3, rows: 18, theme: 'monokai', poster: 'npt:0:02' }" />
+<div class="muted small text-center mb-2">
+Real capture from the PoC — five queries clean, then the same five against the poisoned corpus: <strong>4/5 go pirate.</strong> A reference for anyone whose local run is still coming up.
 </div>
 
-<div class="mt-3 muted small text-center">
-Real capture from the PoC. Five queries clean, then the same five against the poisoned corpus — <strong class="text-white">4/5 go pirate.</strong> This is the fallback if the room's wifi or endpoints fail.
+<div class="asciinema-player-wrapper">
+<Asciinema src="hidden_parrot_rec" :playerProps="{ autoPlay: true, loop: true, speed: 3, rows: 18, cols: 111, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 1 }" />
 </div>
 
 <!--
-This is David's real asciinema recording, reused from the research repo. Use it as the projected
-canonical run while participants work, and as the total-failure fallback. Speed 3x keeps it under a minute.
+David's real asciinema recording, reused from the research repo. autoPlay+loop so it just runs on the
+slide; fit:'width' scales it to the frame so it never overflows. NOTE: the asciinema addon only renders
+in the live (main) view, not in a static PDF export — in the exported PDF this slide shows an empty frame;
+present it live.
 -->
 
 ---
@@ -508,33 +520,33 @@ canonical run while participants work, and as the total-failure fallback. Speed 
 
 # Results: 4 of 5 queries hijacked
 
-<div class="text-sm mt-2">
+<div class="cols-2 mt-2">
+<div>
+<div class="text-xs">
 
-| # | Query | Poison rank | Result |
+| # | Query topic | Poison rank | Result |
 |---|---|---|---|
-| 1 | How do distributed systems handle **load balancing**? | **#1** | <span class="dont">POISONED</span> |
-| 2 | What are the main benefits of **cloud computing**? | #2 | <span class="dont">POISONED</span> |
-| 3 | Explain **machine learning** algorithms | *not retrieved* | <span class="do">CLEAN</span> |
-| 4 | What is **consistent hashing**? | **#1** | <span class="dont">POISONED</span> |
-| 5 | How do **microservices** improve architecture? | **#1** | <span class="dont">POISONED</span> |
+| 1 | load balancing | **#1** | <span class="dont">POISONED</span> |
+| 2 | cloud computing | #2 | <span class="dont">POISONED</span> |
+| 3 | machine learning | *not retrieved* | <span class="do">CLEAN</span> |
+| 4 | consistent hashing | **#1** | <span class="dont">POISONED</span> |
+| 5 | microservices | **#1** | <span class="dont">POISONED</span> |
 
 </div>
-
-<div class="cols-3 mt-4 text-sm">
-<div v-click class="card"><div class="tag tag-clean mb-1">baseline</div><div class="small"><strong>0 / 5</strong> pirate before poisoning. The behavior is entirely attributable to the one added document.</div></div>
-<div v-click class="card"><div class="tag tag-poison mb-1">after</div><div class="small"><strong>4 / 5</strong> = 80%. One document, ~4 lines of instruction, in a 4-document corpus.</div></div>
-<div v-click class="card"><div class="tag tag-warn mb-1">the miss is the lesson</div><div class="small">Q3 didn't resist — the poison was <strong class="text-white">never retrieved.</strong> Different topic, different neighborhood.</div></div>
+<div class="tiny muted mt-2">Baseline before poisoning: <strong>0 / 5</strong>. The behavior is entirely attributable to the one added document.</div>
 </div>
 
-<div v-click class="mt-4 muted small text-center">
-Two details worth noticing: <strong class="text-white">Q2 fired from rank #2</strong> — you don't need to win, only to make top-k. And Q4's poisoned answer was <em>"I don't know, matey… I don't rightly understand"</em> where the clean run answered correctly — <strong class="text-white">the injection also degraded capability</strong>, it didn't just change tone.
+<div class="space-y-2">
+<div v-click class="card"><div class="tag tag-poison mb-1">potency</div><div class="small"><strong>4/5 = 80%.</strong> One document, ~4 lines of instruction, in a 4-doc corpus.</div></div>
+<div v-click class="card"><div class="tag tag-warn mb-1">the miss is the lesson</div><div class="small">Q3 stayed clean because the poison was <strong>never retrieved</strong> — different topic, different neighborhood. Not model resistance.</div></div>
+<div v-click class="card"><div class="tag mb-1">two subtleties</div><div class="small">Q2 fired from <strong>rank #2</strong> — you only need top-k, not #1. And Q4's poisoned reply was <em>"I don't know, matey…"</em> where clean answered correctly: injection <strong>also degrades capability.</strong></div></div>
+</div>
 </div>
 
 <!--
-This is the "summary of what happened" slide. Everything here is real data from the recorded run.
-Three beats: baseline zero (attribution), 80% (potency), the miss (retrieval-gating).
-Then the two subtleties: rank #2 is enough, and injection costs answer quality. Do NOT claim 80% is a
-benchmark — it's n=5, one run, and the query set leans toward the poison's own topic. Say so if asked.
+The "summary of what happened" slide — all real data from the recorded run. Three beats on the right:
+potency (80%), the miss (retrieval-gating), the two subtleties. Do NOT claim 80% is a benchmark — n=5,
+one run, query set leans toward the poison's own topic. Say so if asked.
 -->
 
 ---
@@ -707,9 +719,9 @@ The attacker could <strong>never read the private channel.</strong> The assistan
 
 ---
 
-<div class="kicker">You are not the first to find this — and that's fine</div>
+<div class="kicker">A well-researched threat</div>
 
-# Where this sits in the research
+# The research is clear. The deployments aren't.
 
 <div class="text-sm space-y-2 mt-3">
 
@@ -722,9 +734,9 @@ The attacker could <strong>never read the private channel.</strong> The assistan
 
 </div>
 
-<div v-click class="mt-4 card">
-<div class="tag tag-warn mb-1">honesty</div>
-<div class="small">This repo's README calls it the <em>"first demonstration."</em> It isn't — the field above predates it. What this repo <strong class="text-white">is</strong>: a clean, reproducible teaching harness. We'll treat it as exactly that.</div>
+<div v-click class="mt-4 card card-deep">
+<div class="tag mb-1">the gap</div>
+<div class="small">This is <strong>well-established research</strong> — named in 2023, formalized and measured since. Yet most organizations shipping RAG today still <strong>threat-model only the chat box</strong> and leave the ingestion pipeline unguarded. The science is settled; the practice hasn't caught up. That gap is why we're here.</div>
 </div>
 
 ---
@@ -920,7 +932,7 @@ python src/rag_poisoning_demo.py --infer openai \
 <div class="card card-deep">
 <div class="tag mb-2">what the program does</div>
 <div class="small">It's not a framework — it's <strong class="text-white">one script</strong>: build a 3-doc corpus, embed it, run your queries; then add <em>one</em> poisoned doc and run the same queries again. The whole attack is the diff between those two runs.</div>
-<div class="tiny muted mt-3">Endpoint set once in <code>.env</code> (bare origin, no <code>/v1</code>). Small models vary — if yours won't comply, point <code>.env</code> at the shared 3B and re-run.</div>
+<div class="tiny muted mt-3">Endpoint set once in <code>.env</code> (bare origin, no <code>/v1</code>). Small models vary — if yours won't comply, try a 3B instruct (qwen2.5:3b / llama3.2:3b) or nudge your phrasing.</div>
 </div>
 </div>
 
@@ -999,7 +1011,7 @@ layout: section
 
 # The mitigation ladder
 
-<div class="text-sm mt-2">
+<div class="text-xs mt-1" style="line-height:1.25">
 
 | Control | What it buys you | How the attacker routes around | Verdict |
 |---|---|---|---|
@@ -1078,31 +1090,10 @@ That's <em>why</em> the controls that matter aren't prompt tuning:
 3. Author a payload and show that **naive input scanning is defeated by paraphrase.**
 4. State that the attack is **retrieval-gated** — and that retrieval logs are your best telemetry.
 5. Map it to real consequences — Slack AI exfil, silent bias, agent hijack — and to OWASP / ATLAS / NIST.
-6. Prioritize the defenses that **bound the loss** over the ones that are theater.
+6. Prioritize the defenses that **bound the loss** over the ones that only look protective.
 
 </v-clicks>
 
-</div>
-
----
-
-<div class="kicker">Homework — and an honest caveat</div>
-
-# The public repo will fight you. That's the lesson.
-
-<div class="small muted mb-2">We taught on a patched <code>workshop</code> branch. When you clone the as-shipped repo at home, you'll hit its real defects:</div>
-
-<div class="text-sm space-y-2">
-
-- **Hardcoded model** `llama3:8b-instruct-q5_0` → 404s every Ollama / LM Studio user. *(Fix: read the model from config.)*
-- **Forced `TRANSFORMERS_OFFLINE=1`** → a cold cache throws a misleading "no internet" error. *(Fix: make it opt-in.)*
-- **6-word regex "success" metric** → over- and under-counts. *("80%" was 4/5, one run, temp 0.7.)*
-- **`top_k=3` vs a 4-doc corpus** → the retrieval miss you saw in Q3.
-
-</div>
-
-<div v-click class="mt-5 card card-deep">
-Every one of those is a real-world RAG-security lesson hiding in a demo. Finding them is the exercise.
 </div>
 
 ---
@@ -1138,15 +1129,16 @@ layout: center
 
 # This automates. Meet `ps-fuzz`.
 
-<div class="asciinema-player-wrapper mt-2">
-<Asciinema src="/ps_fuzz_rec" :playerProps="{ speed: 3, rows: 18, theme: 'monokai', poster: 'npt:0:02' }" />
+<div class="muted small text-center mb-2">
+Prompt Security's open-source LLM fuzzer, pointed at a poisoned RAG stack — the by-hand lab run as a <strong>repeatable test</strong>, the shape of a detection/regression check for your own pipeline.
 </div>
 
-<div class="mt-3 muted small text-center">
-Prompt Security's open-source LLM fuzzer, pointed at a poisoned RAG stack. What you did by hand in the lab, run as a <strong class="text-white">repeatable test</strong> — the shape of a real detection/regression harness for your own pipeline.
+<div class="asciinema-player-wrapper">
+<Asciinema src="ps_fuzz_rec" :playerProps="{ autoPlay: true, loop: true, speed: 4, rows: 20, cols: 114, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 1 }" />
 </div>
 
 <!--
-Reused recording (ps_fuzz_rec) from the research repo. Optional: show only if time allows or a
-fast-finisher asks "how would I test my own system for this?" Bridges the workshop to real tooling.
+Reused recording (ps_fuzz_rec). autoPlay+loop+fit:'width' so it plays and fits. Optional: show if time
+allows or a fast-finisher asks "how do I test my own system for this?" As with the other recording, the
+asciinema player renders live only, not in the static PDF export.
 -->
