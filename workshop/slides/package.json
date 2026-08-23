@@ -1,0 +1,19 @@
+{
+  "name": "hidden-parrot-workshop-slides",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^0.49.29",
+    "@slidev/theme-default": "^0.25.0",
+    "@slidev/theme-seriph": "^0.25.0",
+    "slidev-addon-asciinema": "^0.1.11"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.62.1"
+  }
+}

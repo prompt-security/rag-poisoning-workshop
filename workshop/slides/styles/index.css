@@ -1,0 +1,117 @@
+/* ── The Hidden Parrot — Prompt Security (current brand) workshop theme ──── */
+/* Palette pulled live from prompt.security (2026): electric purple + lime on dark navy. */
+:root {
+  --ps-brand:     #6100ff;   /* electric purple — primary accent */
+  --ps-brand-lt:  #8a5cff;   /* lighter purple for text on dark  */
+  --ps-lime:      #8fff08;   /* electric lime — secondary accent */
+  --ps-orange:    #ffa33f;   /* orange — caution                 */
+  --ps-navy:      #0b0c1b;   /* near-black navy — bg             */
+  --ps-purple:    #140d33;   /* deep purple — panel              */
+  --ps-purple-2:  #1c1442;   /* panel-2                          */
+  --ps-line:      #2c2358;   /* borders                          */
+  --ps-text:      #ece9fb;   /* body                             */
+  --ps-mut:       #9d95c7;   /* muted                            */
+  --ps-danger:    #ff3d6e;   /* poison / attack (semantic red)   */
+  --ps-clean:     #8fff08;   /* clean / safe  (= lime)           */
+  --ps-warn:      #ffa33f;   /* caution       (= orange)         */
+  --ps-grad:      linear-gradient(62deg,#420db3 0%,#250230 100%);
+}
+
+.slidev-layout {
+  background: var(--ps-navy);
+  color: var(--ps-text);
+  font-family: Quicksand, system-ui, sans-serif;
+}
+.slidev-layout h1 { color: #fff; font-weight: 700; letter-spacing: -.01em; }
+.slidev-layout h2 { color: var(--ps-brand-lt); font-weight: 600; }
+.slidev-layout h1 + p { color: var(--ps-mut); }
+.slidev-layout a { color: var(--ps-brand-lt); }
+.slidev-layout strong { color: #fff; }
+.slidev-layout code { color: var(--ps-lime); }
+.text-\[\#B56FED\] { color: var(--ps-brand-lt) !important; } /* legacy accent → brand */
+
+/* section / cover use the brand gradient */
+.slidev-layout.slidev-layout { }
+.slidev-page-section, section.slidev-layout { }
+
+/* accent kicker above titles */
+.kicker {
+  text-transform: uppercase; letter-spacing: .2em; font-size: .72rem;
+  color: var(--ps-brand-lt); font-weight: 700; margin-bottom: .4rem;
+}
+
+/* generic cards / panels */
+.card {
+  background: var(--ps-purple); border: 1px solid var(--ps-line);
+  border-radius: 14px; padding: 1rem 1.15rem;
+}
+.card-deep { background: var(--ps-grad); border-color: #4b2aa0; }
+
+/* pill/tag */
+.tag {
+  display: inline-block; padding: .12rem .55rem; border-radius: 999px;
+  font-size: .72rem; font-weight: 700; letter-spacing: .02em;
+  border: 1px solid var(--ps-line); background: var(--ps-purple-2); color: var(--ps-brand-lt);
+}
+.tag-poison { color: var(--ps-danger); border-color: #5a2238; background: #241019; }
+.tag-clean  { color: #0b0c1b; border-color: var(--ps-lime); background: var(--ps-lime); font-weight: 800; }
+.tag-warn   { color: var(--ps-warn);  border-color: #524421; background: #211d10; }
+
+/* verdict chips for the mitigation table */
+.do    { color: var(--ps-lime);   font-weight: 800; }
+.dont  { color: var(--ps-danger); font-weight: 800; }
+.maybe { color: var(--ps-warn);   font-weight: 800; }
+
+/* the flat-string assembly diagram */
+.assembly { display: flex; align-items: stretch; gap: 0; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--ps-line); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .8rem; }
+.assembly .seg { padding: .8rem .9rem; flex: 1; }
+.seg-sys  { background: #10204a; color: #8fb6ff; }
+.seg-poison { background: #2a1220; color: #ff9bb6; position: relative; }
+.seg-usr  { background: #13300f; color: #c9ff8f; }
+.seg h4 { font-family: Quicksand, system-ui; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .12em; margin: 0 0 .4rem; opacity: .85; }
+.ribbon {
+  margin-top: .8rem; padding: .7rem .9rem; border-radius: 10px;
+  background: repeating-linear-gradient(90deg,#160f38,#160f38 22px,#1e1450 22px,#1e1450 44px);
+  border: 1px dashed var(--ps-brand); color: var(--ps-brand-lt);
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .78rem; letter-spacing: .04em;
+}
+
+/* terminal-capture styling */
+.term {
+  background: #050510; border: 1px solid var(--ps-line); border-radius: 12px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace; font-size: .78rem; line-height: 1.5;
+  padding: .9rem 1rem; color: #cfc6e0; overflow: auto;
+}
+.term .c-clean  { color: var(--ps-lime); }
+.term .c-poison { color: var(--ps-danger); }
+.term .c-mut    { color: var(--ps-mut); }
+.term .c-prompt { color: var(--ps-brand-lt); }
+.schematic-note {
+  border-top: 1px dashed var(--ps-line); margin-top: .6rem; padding-top: .45rem;
+  color: var(--ps-mut); font-family: Quicksand, system-ui; font-size: .7rem;
+}
+
+/* footer branding on every slide */
+.slidev-layout::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: linear-gradient(90deg, var(--ps-brand), var(--ps-lime));
+  opacity: .7;
+}
+
+/* compact tables */
+.slidev-layout table { font-size: .82rem; }
+.slidev-layout th { color: var(--ps-brand-lt); border-color: var(--ps-line); }
+.slidev-layout td { border-color: var(--ps-line); }
+
+/* asciinema player sizing */
+.asciinema-player-wrapper { max-width: 900px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 1px solid var(--ps-line); }
+
+/* two-column helper */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .8rem; }
+
+.muted { color: var(--ps-mut); }
+.small { font-size: .8rem; }
+.tiny  { font-size: .7rem; }

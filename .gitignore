@@ -1,0 +1,13 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+models/
+data/
+logs/
+.env
+.keys
+# slidev
+workshop/slides/node_modules/
+workshop/slides/dist/
+workshop/slides/.slidev/
