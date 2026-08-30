@@ -1,0 +1,78 @@
+name: Validate deck build (PR)
+
+# Proves the deck still builds and exports on every PR — used to vet the Slidev 52 upgrade.
+# Runs a FRESH `npm install` (no committed lockfile needed) so it also emits the regenerated
+# package-lock.json as an artifact.
+on:
+  pull_request:
+    paths:
+      - 'workshop/slides/**'
+      - '.github/workflows/validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-export:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workshop/slides
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps (fresh resolve → new lockfile)
+        run: npm install --no-audit --no-fund
+
+      - name: Upload regenerated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-lock
+          path: workshop/slides/package-lock.json
+          if-no-files-found: error
+
+      - name: Build Slidev (static site)
+        run: npx slidev build --base / --out dist
+
+      - name: Install Chromium for export
+        run: npx playwright install --with-deps chromium
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-pptx
+
+      - name: Install agg + ensure ffmpeg
+        run: |
+          cargo install --git https://github.com/asciinema/agg --tag v1.5.0
+          ffmpeg -version >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Export PDF
+        run: npx slidev export --format pdf --output deck.pdf
+
+      - name: Export PPTX + embed videos
+        run: |
+          set -euo pipefail
+          bash scripts/make-videos.sh build/vid
+          npx slidev export --format pptx --no-with-clicks
+          HP="$(node scripts/find-video-slides.mjs hidden_parrot_rec)"
+          PF="$(node scripts/find-video-slides.mjs ps_fuzz_rec)"
+          echo "video slides: HP=$HP PF=$PF"
+          python scripts/embed_pptx_videos.py slides-export.pptx \
+            "$HP:build/vid/hidden_parrot_rec.mp4:build/vid/hidden_parrot_rec.poster.png" \
+            "$PF:build/vid/ps_fuzz_rec.mp4:build/vid/ps_fuzz_rec.poster.png"
+          mv slides-export.pptx deck.pptx
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deck-preview
+          path: |
+            workshop/slides/deck.pdf
+            workshop/slides/deck.pptx
+          if-no-files-found: error
