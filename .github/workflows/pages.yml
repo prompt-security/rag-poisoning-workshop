@@ -36,13 +36,15 @@ jobs:
 
       - run: npm ci
 
-      # Project Pages are served under /<repo>/, so the deck must be built with that base.
-      - name: Build Slidev
-        run: npx slidev build --base "/${GITHUB_REPOSITORY#*/}/" --out dist
-
-      - uses: actions/configure-pages@v5
+      # Resolve the correct base path FIRST: '/' for the access-controlled *.pages.github.io
+      # domain used by private/internal repos, or '/<repo>/' for a public project site.
+      - id: pages
+        uses: actions/configure-pages@v5
         with:
           enablement: true
+
+      - name: Build Slidev
+        run: npx slidev build --base "${{ steps.pages.outputs.base_path }}" --out dist
 
       - uses: actions/upload-pages-artifact@v3
         with:
