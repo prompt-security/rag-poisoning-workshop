@@ -1,3 +1,8 @@
+/* Correct asciinema-player CSS for the installed 3.17 player (the addon bundles a stale 3.4-era
+   sheet that targets .ap-terminal; 3.17 renders .ap-term, so without this the terminal text is
+   unstyled/invisible). Must precede all other rules. */
+@import 'asciinema-player/dist/bundle/asciinema-player.css';
+
 /* ── The Hidden Parrot — Prompt Security (current brand) · LIGHT theme ───── */
 /* Palette from prompt.security (2026): electric purple + lime accents on a light ground. */
 :root {
