@@ -1,0 +1,101 @@
+name: Build release artifacts (PDF + PPTX)
+
+# Fires when a version tag is pushed (see RELEASING.md). Builds the deck as a PDF
+# (recordings shown as a placeholder) and a PPTX (recordings embedded as real MP4
+# movies), then attaches both to the GitHub Release for the tag.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)build artifacts for, e.g. v1.0.0'
+        required: true
+
+permissions:
+  contents: write   # create the release and upload assets
+
+jobs:
+  artifacts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workshop/slides
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Resolve version + tag
+        id: v
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG"           >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}"   >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: workshop/slides/package-lock.json
+      - run: npm ci
+
+      - name: Install Chromium for Slidev export
+        run: npx playwright install --with-deps chromium
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install python-pptx
+
+      - name: Install agg (asciinema -> gif)
+        run: cargo install --git https://github.com/asciinema/agg --tag v1.5.0
+
+      - name: Ensure ffmpeg
+        run: ffmpeg -version >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Build recording videos (MP4 + poster)
+        run: bash scripts/make-videos.sh build/vid
+
+      - name: Export PDF (recordings as placeholders)
+        run: npx slidev export --format pdf --output "The-Hidden-Parrot-Workshop-${{ steps.v.outputs.version }}.pdf"
+
+      - name: Export PPTX and embed MP4 videos
+        run: |
+          set -euo pipefail
+          # one PPTX slide per deck slide (do NOT expand clicks) so slide indices line up
+          npx slidev export --format pptx --no-with-clicks
+          HP="$(node scripts/find-video-slides.mjs hidden_parrot_rec)"
+          PF="$(node scripts/find-video-slides.mjs ps_fuzz_rec)"
+          echo "embedding videos on slides HP=$HP PF=$PF"
+          python scripts/embed_pptx_videos.py slides-export.pptx \
+            "$HP:build/vid/hidden_parrot_rec.mp4:build/vid/hidden_parrot_rec.poster.png" \
+            "$PF:build/vid/ps_fuzz_rec.mp4:build/vid/ps_fuzz_rec.poster.png"
+          mv slides-export.pptx "The-Hidden-Parrot-Workshop-${{ steps.v.outputs.version }}.pptx"
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: hidden-parrot-workshop-${{ steps.v.outputs.version }}
+          path: |
+            workshop/slides/The-Hidden-Parrot-Workshop-*.pdf
+            workshop/slides/The-Hidden-Parrot-Workshop-*.pptx
+          if-no-files-found: error
+
+      - name: Publish / update the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.v.outputs.tag }}"
+          NOTES="Workshop deck for **The Hidden Parrot** ${TAG}.
+
+          - **PDF** — static; the two recorded terminal sessions appear as a placeholder (a static PDF cannot hold video).
+          - **PPTX** — the same deck with the two recordings embedded as low-quality MP4 movies (play in PowerPoint).
+          - The live/interactive deck (with playable recordings) is on GitHub Pages."
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --title "The Hidden Parrot $TAG" --notes "$NOTES"
+          gh release upload "$TAG" \
+            The-Hidden-Parrot-Workshop-*.pdf \
+            The-Hidden-Parrot-Workshop-*.pptx \
+            --clobber

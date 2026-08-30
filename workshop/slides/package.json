@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "slidev --open",
     "build": "slidev build",
-    "export": "slidev export"
+    "build:pages": "slidev build --base /rag-poisoning-workshop/ --out dist",
+    "export": "slidev export --format pdf",
+    "export:pdf": "slidev export --format pdf",
+    "export:pptx": "slidev export --format pptx --no-with-clicks",
+    "videos": "bash scripts/make-videos.sh build/vid"
   },
   "dependencies": {
     "@slidev/cli": "^0.49.29",

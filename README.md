@@ -23,7 +23,32 @@ vector-database embeddings. Participants run the attack themselves against a sma
 ```bash
 cd workshop/slides
 npm install
-npm run dev        # http://localhost:3030
+npm run dev        # http://localhost:3030 — live, interactive, recordings play
+```
+
+> **Navigating Slidev:** the numbered slide list that can overlay the deck is the *go-to* jumper
+> (opened by pressing <kbd>g</kbd>) or the overview (<kbd>o</kbd>). Press <kbd>Esc</kbd> to close it.
+> It is not part of the slides and never appears in the exports or on GitHub Pages.
+
+## Three formats, built automatically
+
+| Format | Where | Recordings |
+|---|---|---|
+| **Live Slidev** | GitHub Pages: `https://davida-ps.github.io/rag-poisoning-workshop/` | play as interactive asciinema players (with controls) |
+| **PPTX** | attached to each [Release](../../releases) | embedded as low-quality MP4 movies (play in PowerPoint) |
+| **PDF** | attached to each [Release](../../releases) | a placeholder card (a static PDF can't hold video) |
+
+- **GitHub Pages** redeploys on every push to `main` (`.github/workflows/pages.yml`).
+- **PDF + PPTX** rebuild and attach to the Release whenever a `vX.Y.Z` **tag** is pushed
+  (`.github/workflows/release.yml`). See **[RELEASING.md](RELEASING.md)** for how to cut a version.
+
+Build them locally too:
+```bash
+cd workshop/slides
+npm run build:pages     # static site → dist/  (Pages build)
+npm run export:pdf      # PDF (placeholder on the recording slides)
+npm run videos          # MP4s from the recordings  (needs agg + ffmpeg)
+npm run export:pptx     # PPTX (then run scripts/embed_pptx_videos.py to embed the MP4s)
 ```
 
 ## Companion

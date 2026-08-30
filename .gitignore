@@ -11,3 +11,6 @@ logs/
 workshop/slides/node_modules/
 workshop/slides/dist/
 workshop/slides/.slidev/
+workshop/slides/build/
+workshop/slides/*.pptx
+workshop/slides/*.pdf

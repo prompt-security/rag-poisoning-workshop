@@ -503,15 +503,25 @@ layout: center
 Real capture from the PoC — five queries clean, then the same five against the poisoned corpus: <strong>4/5 go pirate.</strong> A reference for anyone whose local run is still coming up.
 </div>
 
-<div class="asciinema-player-wrapper">
-<Asciinema src="hidden_parrot_rec" :playerProps="{ autoPlay: true, loop: true, speed: 3, rows: 18, cols: 111, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 1 }" />
+<RenderWhen context="print">
+
+<div class="card" style="max-width:760px;margin:0.5rem auto 0;text-align:center">
+<div class="tag mb-2">▶ recorded terminal session</div>
+<div class="small">This capture plays in the <strong>Slidev</strong> deck and the <strong>PowerPoint (.pptx)</strong> export. A static PDF can't hold a video — open the <code>.pptx</code> or run the deck to watch the clean → poisoned run.</div>
 </div>
 
+<template #fallback>
+<div class="asciinema-player-wrapper">
+<Asciinema src="hidden_parrot_rec" :playerProps="{ autoPlay: true, loop: true, controls: true, speed: 1.4, rows: 18, cols: 111, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 2 }" />
+</div>
+</template>
+
+</RenderWhen>
+
 <!--
-David's real asciinema recording, reused from the research repo. autoPlay+loop so it just runs on the
-slide; fit:'width' scales it to the frame so it never overflows. NOTE: the asciinema addon only renders
-in the live (main) view, not in a static PDF export — in the exported PDF this slide shows an empty frame;
-present it live.
+Live view: asciinema plays with visible controls (speed 1.4, idle capped at 2s so the long inference
+waits don't drag). PDF export (print context): a placeholder card. The PPTX build embeds a real MP4 here
+(see .github/workflows/release.yml). Video slide id: hidden_parrot_rec.
 -->
 
 ---
@@ -1133,12 +1143,22 @@ layout: center
 Prompt Security's open-source LLM fuzzer, pointed at a poisoned RAG stack — the by-hand lab run as a <strong>repeatable test</strong>, the shape of a detection/regression check for your own pipeline.
 </div>
 
-<div class="asciinema-player-wrapper">
-<Asciinema src="ps_fuzz_rec" :playerProps="{ autoPlay: true, loop: true, speed: 4, rows: 20, cols: 114, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 1 }" />
+<RenderWhen context="print">
+
+<div class="card" style="max-width:760px;margin:0.5rem auto 0;text-align:center">
+<div class="tag mb-2">▶ recorded terminal session</div>
+<div class="small">This capture plays in the <strong>Slidev</strong> deck and the <strong>PowerPoint (.pptx)</strong> export. A static PDF can't hold a video — open the <code>.pptx</code> or run the deck to watch <code>ps-fuzz</code> in action.</div>
 </div>
 
+<template #fallback>
+<div class="asciinema-player-wrapper">
+<Asciinema src="ps_fuzz_rec" :playerProps="{ autoPlay: true, loop: true, controls: true, speed: 1.6, rows: 20, cols: 114, fit: 'width', terminalFontSize: 'small', theme: 'asciinema', idleTimeLimit: 2 }" />
+</div>
+</template>
+
+</RenderWhen>
+
 <!--
-Reused recording (ps_fuzz_rec). autoPlay+loop+fit:'width' so it plays and fits. Optional: show if time
-allows or a fast-finisher asks "how do I test my own system for this?" As with the other recording, the
-asciinema player renders live only, not in the static PDF export.
+Live: asciinema with controls (speed 1.6). PDF: placeholder. PPTX build embeds a real MP4 here.
+Video slide id: ps_fuzz_rec.
 -->
