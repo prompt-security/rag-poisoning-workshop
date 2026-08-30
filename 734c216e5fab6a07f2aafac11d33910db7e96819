@@ -1,0 +1,23 @@
+.github/workflows/pages.yml
+  427cf7bbb868b3c8 44-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "2.0.0",
+  "base_commit_sha": "734c216e5fab6a07f2aafac11d33910db7e96819",
+  "prompts": {
+    "427cf7bbb868b3c8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6683ad80-bb64-4dde-b9bc-4cac61d1dec5",
+        "model": "claude-opus-5"
+      },
+      "human_author": "David Abutbul <david.a@prompt.security>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
