@@ -34,14 +34,14 @@ npm run dev        # http://localhost:3030 — live, interactive, recordings pla
 
 | Format | Where | Recordings |
 |---|---|---|
-| **Live Slidev** | GitHub Pages: `https://davida-ps.github.io/rag-poisoning-workshop/` (once the repo is public — see note) | play as interactive asciinema players (with controls) |
+| **Live Slidev** | GitHub Pages (org-members only — see repo **Settings → Pages** for the current URL) | play as interactive asciinema players (with controls) |
 | **PPTX** | attached to each [Release](../../releases) | embedded as low-quality MP4 movies (play in PowerPoint) |
 | **PDF** | attached to each [Release](../../releases) | a placeholder card (a static PDF can't hold video) |
 
-> **Pages requires the repo to be public.** GitHub Pages isn't available for a **private** repo on
-> this account's plan (it needs GitHub Pro, or the repo to be public). The `pages.yml` workflow is
-> ready and correct; the moment the repo is flipped to public, the next push to `main` deploys the
-> live deck to the URL above. Until then, use the PPTX/PDF from Releases, or `npm run dev` locally.
+> **Pages is access-controlled.** This is an **internal** org repo, so GitHub serves the deck from an
+> obfuscated `https://<random>.pages.github.io/` URL visible only to `prompt-security` members (find it
+> in **Settings → Pages**). The `pages.yml` workflow derives the correct base path automatically, so it
+> keeps working the same way if the repo is ever made public.
 
 - **GitHub Pages** redeploys on every push to `main` (`.github/workflows/pages.yml`).
 - **PDF + PPTX** rebuild and attach to the Release whenever a `vX.Y.Z` **tag** is pushed
