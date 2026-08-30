@@ -1,0 +1,23 @@
+.github/workflows/validate.yml
+  427cf7bbb868b3c8 1-78
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "2.0.0",
+  "base_commit_sha": "fea9001b951301ef06a0ad6dad16bae24e5c530a",
+  "prompts": {
+    "427cf7bbb868b3c8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6683ad80-bb64-4dde-b9bc-4cac61d1dec5",
+        "model": "claude-opus-5"
+      },
+      "human_author": "David Abutbul <david.a@prompt.security>",
+      "messages": [],
+      "total_additions": 78,
+      "total_deletions": 0,
+      "accepted_lines": 78,
+      "overriden_lines": 0
+    }
+  }
+}
