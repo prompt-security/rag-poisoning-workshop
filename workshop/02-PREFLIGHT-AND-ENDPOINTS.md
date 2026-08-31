@@ -8,8 +8,14 @@
    ```bash
    git clone -b workshop <repo-url> && cd RAG_Poisoning_POC
    ```
-   `main` lacks the OpenAI-compatible provider, `--show-prompt`, single-query mode, `defense_scan.py`
-   and `ctf.py`, and its hardcoded model 404s every Ollama/LM Studio user at minute one.
+   Two long-standing defects made `main` unusable for anyone on Ollama, llama-server or LM Studio:
+   there was no OpenAI-compatible provider at all, and `llm_factory.py` printed your configured model
+   then ignored it, hardcoding `llama3:8b-instruct-q5_0` — a 404 at minute one for every Ollama user.
+   Both are fixed by prompt-security/RAG_Poisoning_POC#1, which also adds `src/preflight.py`. Until
+   that merges, use the workshop branch.
+
+   > `--show-prompt`, single-query mode, `defense_scan.py` and `ctf.py` were **dropped from scope** —
+   > the demo is the repo's real `src/rag_poisoning_demo.py`. Don't reintroduce them.
 
 2. **Install (no compiler needed):**
    ```bash
@@ -35,35 +41,66 @@
 
 6. **Run the self-check and report:**
    ```bash
-   python ctf.py --check
+   python3 src/preflight.py --one-line
    ```
-   On success prints exactly:
-   `PREFLIGHT PASS: harness ok | embeddings cached (dim 384) | endpoint <url> reachable | model fired: aye`
-   On failure prints ONE reason + remedy, e.g. `FAIL: endpoint 404 — check base URL is a bare origin
-   with no /v1 suffix`. **Paste the PASS line + your name + endpoint type into the shared thread ≥24h
-   ahead** so the instructor sizes the shared endpoint and spots red laptops early.
+   On success prints exactly one pasteable line:
+   `PREFLIGHT PASS: python 3.11.9 | deps ok | embeddings cached (dim 384) | endpoint http://localhost:8080 reachable | model fired: 'READY'`
+   On failure prints ONE reason + remedy:
+   `PREFLIGHT FAIL: ollama daemon not reachable -- ollama serve`
+
+   **Paste the PASS line + your name + endpoint type into the shared thread ≥24h ahead** so the
+   instructor sizes the shared endpoint and spots red laptops early.
+
+   For the full diagnostic instead of one line, drop `--one-line`. Useful extras:
+   ```bash
+   python3 src/preflight.py                      # every check, with the fix command for each
+   python3 src/preflight.py --provider ollama    # just your endpoint
+   python3 src/preflight.py --deep               # also probe for SILENT prompt truncation
+   python3 src/preflight.py --install ollama     # print (or --run) the install commands
+   python3 src/preflight.py --download phi-4-mini
+   python3 src/preflight.py --write-env ollama --model phi-4-mini
+   ```
+   `preflight.py` is stdlib-only and needs no venv, so it still reports usefully when step 2 failed.
+   `--deep` is worth running once: it puts a codeword at the head of a long prompt and asks for it
+   back, which catches engines that silently trim an overflowing prompt — the failure mode that
+   breaks this demo with no error message at all.
 
 ---
 
 ## Endpoint matrix
 
-### Recommended models (participant tier: 3B)
+### Recommended models (participant tier: ~4B)
+
+All picks are **Microsoft Phi**: MIT-licensed, published by a US company, and — the practical part —
+**ungated**. No HuggingFace account, no token, no gated-repo licence click-through, which is what
+usually strands a participant 24h before the room. Verified with an unauthenticated request: both
+GGUFs return HTTP `200`.
+
 | Model | Size | Runtimes | Behavior |
 |---|---|---|---|
-| **qwen2.5:3b-instruct (Q4_K_M)** — TOP PICK | 1.93 GB | ollama, llama-server | 100% (5/5) with poison in context; 99/100 under 20-way concurrency |
-| **llama3.2:3b-instruct-q4_K_M** — co-top | 2.02 GB | ollama | 100% (5/5); slightly more verbose |
-| 7–8B instruct Q4_K_M (Qwen2.5-7B / Llama-3.1-8B) — SHOWPIECE (instructor only) | ~4.7 GB | any | 100%, most theatrical output |
-| qwen2.5:1.5b-instruct — **DO NOT USE** | 0.99 GB | — | 40–60%, high variance |
-| anything <1.5B, or reasoning/thinking models — **BANNED** | — | — | 0–30% / un-demoable |
+| **`phi4-mini` (Phi-4-mini-instruct Q4_K_M)** — TOP PICK | 2.32 GB | ollama, llama-server, LM Studio | **100% (5/5)** at top-k=4; 1.4–3.7 s/query warm on llama-server |
+| **`phi3.5` (Phi-3.5-mini-instruct Q4_K_M)** — co-top | 2.23 GB | ollama, llama-server, LM Studio | 4/4 compliance whenever the poison was retrieved; 11–20 s/query in-process via llama-cpp-python |
+| Phi-4 (14B) Q4_K_M — SHOWPIECE (instructor only) | ~9 GB | any | most theatrical output; **not yet measured here** |
+| any instruct model ≤1.5B — **DO NOT USE** | — | — | 40–60%, high variance between runs |
+| reasoning/"thinking" models — **BANNED** | — | — | narrate the injection and break the clean binary |
 
 **Minimum context: 2048 tokens** (≈500-token prompt + 256 completion, with headroom).
+
+> **Measured, and worth being precise about.** At the workshop default **top-k=4**, Phi-4-mini was
+> poisoned on **5/5** queries. At top-k=3 it drops to 4/5 — but the one clean answer is a **retrieval
+> miss**, not the model resisting: the poisoned `distributed_systems_advanced.md` simply isn't in that
+> query's retrieved set. Compliance was 4/4 every time the poison was actually retrieved. This is the
+> best teaching moment in the whole demo; don't let it read as "the model defended itself".
+>
+> Concurrency under many participants has **not** been re-measured on Phi — the 20-way figure in the
+> shared-endpoint section below was taken on a different model. Re-measure before relying on it.
 
 ### Runtimes
 | Runtime | Install | Serve | `.env` base URL | Key gotcha |
 |---|---|---|---|---|
-| **llama-server** (llama.cpp) — RECOMMENDED, most forgiving | `brew install llama.cpp` / `winget install llama.cpp` | `llama-server -hf Qwen/Qwen2.5-3B-Instruct-GGUF:Q4_K_M -c 4096 -np 1 -cb --host 127.0.0.1 --port 8080 -a local-model --jinja` | `http://localhost:8080` | Ignores model field, needs no key, fails LOUDLY (HTTP 400) on context overflow — best for a live room |
-| **Ollama** — most familiar | `brew install ollama` / `winget install Ollama.Ollama`; `ollama pull qwen2.5:3b-instruct` | (daemon) | `http://localhost:11434` + `OLLAMA_MODEL=qwen2.5:3b-instruct` | **Truncates SILENTLY** on small context — set `OLLAMA_CONTEXT_LENGTH=4096`, `OLLAMA_KEEP_ALIVE=60m`; check `ollama ps` CONTEXT |
-| **LM Studio** — GUI | `lms get qwen2.5-3b-instruct` | `lms server start --port 1234`; `lms load qwen2.5-3b-instruct --context-length 4096 --parallel 1 --ttl 3600` | `http://localhost:1234` | Server OFF by default; models JIT-load (25 s+ stall) — set `--ttl`; parallel=1, never use as the shared box |
+| **llama-server** (llama.cpp) — RECOMMENDED, most forgiving | `brew install llama.cpp` / `winget install llama.cpp` | `llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np 1 -cb --host 127.0.0.1 --port 8080 -a local-model --jinja` | `http://localhost:8080` | Ignores model field, needs no key, fails LOUDLY (HTTP 400) on context overflow — best for a live room |
+| **Ollama** — most familiar | `brew install ollama` / `winget install Ollama.Ollama`; `ollama pull phi4-mini` | (daemon) | `http://localhost:11434` + `OLLAMA_MODEL=phi4-mini` | **Truncates SILENTLY** on small context — set `OLLAMA_CONTEXT_LENGTH=4096`, `OLLAMA_KEEP_ALIVE=60m`; check `ollama ps` CONTEXT |
+| **LM Studio** — GUI | `lms get phi-4-mini-instruct` | `lms server start --port 1234`; `lms load phi-4-mini-instruct --context-length 4096 --parallel 1 --ttl 3600` | `http://localhost:1234` | Server OFF by default; models JIT-load (25 s+ stall) — set `--ttl`; parallel=1, never use as the shared box |
 | **Shared instructor endpoint** — zero local model | (nothing) | (instructor runs it) | `http://<INSTRUCTOR_IP>:8080` + `OLLAMA_MODEL=local-model` | 15–30 s/query = queueing, not a hang |
 
 **Verify curl (run once as warm-up):**
@@ -101,7 +138,7 @@ If the tail is larger, run 2–3 shared boxes and split by `.env` IP, or use a b
 **Use llama-server, NOT Ollama/LM Studio** — it ignores the OpenAI `model` field (verified: a request
 for a wrong name returned 200), so every `.env` just works. One command:
 ```bash
-llama-server -m ~/models/qwen2.5-3b-instruct-q4_k_m.gguf \
+llama-server -m ~/models/Phi-4-mini-instruct.Q4_K_M.gguf \
   -c 32768 -np 12 -cb -n 256 --host 0.0.0.0 --port 8080 -a local-model --jinja --threads-http 16
 ```
 - `-np 12` = 12 concurrent slots (measured: 20 participants × 10 queries ≈ 3.3 min, 0 errors).
