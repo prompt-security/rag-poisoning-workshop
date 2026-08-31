@@ -11,17 +11,26 @@ claims. **Accuracy caveats at the bottom must be honored on stage.**
 1. **Why RAG exists.** Weights are frozen and models confabulate; teams added retrieval to make the
    chatbot know about *their* products. Nobody chose to build an untrusted-input pipeline — that
    economic pressure is why the ingestion surface was never threat-modeled.
-2. **The retrieval pipeline has two halves.** Offline *ingestion* (nobody watches) vs online
+2. **You are almost certainly still running it — under another name.** The hype moved to agents,
+   reasoning models and million-token windows, but the pattern (fetch somebody's text, paste it into
+   the prompt) only got more common. It answers to *"grounding"* (Microsoft, Google), Bedrock
+   *"Knowledge Bases"* (AWS), a *"knowledge tool" / connector / `file_search` / MCP server* inside an
+   agent, or *"in-context learning"* in a paper. Long context did **not** replace it — brute-forcing a
+   million tokens per query loses on cost, latency and accuracy, and a bigger window is *more*
+   attacker room, not less. GraphRAG and Agentic RAG widen the funnel further and take humans out of
+   the loop. **The test is never the label; it is whether text somebody else wrote reaches the
+   context window.** Land this early or half the room files the whole workshop under "2023 problem."
+3. **The retrieval pipeline has two halves.** Offline *ingestion* (nobody watches) vs online
    *retrieval*. Ask: "who owns the left half?"
-3. **Embeddings preserve meaning; they do not sanitize.** A poisoned instruction embeds just fine.
-4. **At generation time, everything is concatenated into one flat string.** `chain_type="stuff"`
+4. **Embeddings preserve meaning; they do not sanitize.** A poisoned instruction embeds just fine.
+5. **At generation time, everything is concatenated into one flat string.** `chain_type="stuff"`
    literally stuffs every retrieved chunk into the prompt alongside the system prompt and the user
    question. **No privilege label on any span.**
-5. **The model is a next-token predictor.** It cannot distinguish instruction from data — there is
+6. **The model is a next-token predictor.** It cannot distinguish instruction from data — there is
    no boundary bit to check.
-6. **Therefore: write-access to the corpus = instruction-authoring access.**
-7. **The ingestion surface is huge and mostly unguarded** (see §3).
-8. **Persistence:** the payload lives in the vector DB, not the chat. Stored, retrieval-triggered —
+7. **Therefore: write-access to the corpus = instruction-authoring access.**
+8. **The ingestion surface is huge and mostly unguarded** (see §3).
+9. **Persistence:** the payload lives in the vector DB, not the chat. Stored, retrieval-triggered —
    the AI-pipeline analogue of stored XSS.
 
 **The one non-cuttable slide:** the flat-string prompt-assembly diagram

@@ -22,7 +22,7 @@ downloads, and the embedding-model cache are PRE-FLIGHT (see `02-PREFLIGHT-AND-E
 | Time | Min | Mode | Segment |
 |------|-----|------|---------|
 | 0–8   | 8  | SETUP      | Prove your endpoint before we teach |
-| 8–18  | 10 | TEACH (P1) | The load-bearing model: one flat string, no privilege bit |
+| 8–18  | 10 | TEACH (P1) | "You still run RAG, it's just called grounding" + the load-bearing model: one flat string, no privilege bit |
 | 18–28 | 10 | HANDS-ON (P2) | **Lab 1** — run `rag_poisoning_demo.py` yourself + recorded run + results summary |
 | 28–38 | 10 | TEACH (P3) | Threat model: ingestion surface, persistence, retrieval-gating, a real incident |
 | 38–46 | 8  | TEACH (P4) | **How to craft a poison doc** — semantic width · top-k · payload placement |
@@ -30,7 +30,7 @@ downloads, and the embedding-model cache are PRE-FLIGHT (see `02-PREFLIGHT-AND-E
 | 66–84 | 18 | DISCUSSION (P6) | Debrief + honest mitigations: what actually bounds the loss |
 | 84–90 | 6  | BUFFER     | Buffer, wrap, honest-homework caveat |
 
-**Hands-on total: 30 min** (Lab 1 + Lab 2), plus 26 min of teaching that is directly about *doing* the attack (mechanism + how-to-craft). **What gets cut first if late:** the `grep`-bypass bonus challenge → then the how-to-craft section (P4) compresses to the single "3 levers" slide → then mitigations trim to three lines (the rest is on the take-home 1-pager). The "write your own payload" beat (Lab 2) is *never* cut.
+**Hands-on total: 30 min** (Lab 1 + Lab 2), plus 26 min of teaching that is directly about *doing* the attack (mechanism + how-to-craft). **What gets cut first if late:** the `grep`-bypass bonus challenge → then P1's "Why it went quiet, and where it went" slide (long context / infrastructure / GraphRAG / Agentic RAG) → then the how-to-craft section (P4) compresses to the single "3 levers" slide → then mitigations trim to three lines (the rest is on the take-home 1-pager). P1's "You may not call it RAG" alias slide is *not* cut — without it a chunk of the room files this under "2023 problem." The "write your own payload" beat (Lab 2) is *never* cut.
 
 > **Note:** the deck (`slides/slides.md`) is the source of truth for exact content and now maps to
 > Parts 1–6 as in the table above. The per-segment write-ups below predate the P4 "how-to-craft"
@@ -55,8 +55,16 @@ query eats the 16–25 s cold-start.
   **Fallback:** phone hotspot or pre-stood tunnelled cloud box (tested from the room beforehand);
   pre-baked `rag_poisoning_demo.out` is the read-only last resort so nobody is empty-handed.
 
-### 8–18 · TEACH · One flat string, no privilege bit
-**Objective:** install the single transferable idea, keyboards-down: at generation time the
+### 8–18 · TEACH · You still run RAG · one flat string, no privilege bit
+**Objective (first ~2 min) — kill the "RAG is a 2023 problem" objection before it forms.** Most of the room
+ships retrieval under another name: *grounding* (Microsoft, Google), Bedrock *Knowledge Bases* (AWS), a
+*knowledge tool* / connector / `file_search` / MCP server inside an agent, *in-context learning* in a
+paper. Ask out loud: "who has GROUNDING or KNOWLEDGE BASE in a design doc this quarter?" — more hands
+than for the word RAG. Long context did not replace it (cost, latency, accuracy — and a bigger window is
+*more* attacker room); GraphRAG and Agentic RAG widen the funnel and take humans out of the loop. The
+transferable test: **does text somebody else wrote reach the context window?** Then:
+
+**Objective (remaining ~8 min):** install the single transferable idea, keyboards-down: at generation time the
 framework concatenates *system prompt + retrieved chunk + user question* into ONE undifferentiated
 token stream with **no privilege label on any span** — so the model cannot tell instruction from
 data, and **write-access to the corpus is instruction-authoring access.** A property of the
