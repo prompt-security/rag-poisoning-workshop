@@ -97,6 +97,37 @@
   font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .78rem; letter-spacing: .04em;
 }
 
+/* the two-halves pipeline diagram ("Who owns the left half?").
+   Hand-built instead of mermaid: mermaid lays the retrieval chain out as one wide LR row that
+   overflows the 980px slide, and it silently ignores a subgraph's `direction` whenever an edge
+   crosses between subgraphs -- so neither LR nor stacked-TB could be made to fit. Two columns also
+   match the slide's own left-half / right-half framing. */
+.pipe { display: grid; grid-template-columns: 1fr auto 1fr; gap: .45rem; align-items: center; }
+.pipe-half { align-self: start; border-radius: 12px; padding: .5rem .6rem .6rem; border: 1px solid; }
+.pipe-in  { background: #140d33; border-color: var(--ps-brand); }
+.pipe-out { background: #10204a; border-color: #3a3f7a; }
+.pipe-hd {
+  font-family: Quicksand, system-ui; font-size: .62rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em; text-align: center; margin-bottom: .45rem;
+}
+.pipe-in  .pipe-hd { color: #c9b8ff; }
+.pipe-out .pipe-hd { color: #cfe0ff; }
+.pnode {
+  background: #0c0a17; border: 1px solid #3a3363; border-radius: 8px;
+  padding: .28rem .45rem; text-align: center; color: #e6dff7;
+  font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .66rem; line-height: 1.25;
+}
+.pnode span { display: block; font-size: .56rem; color: #9d95c7; margin-top: .08rem; }
+.pnode-db  { background: #2a1220; border-color: var(--ps-danger); color: #ff9bb6; }
+.pnode-hit { border-color: var(--ps-brand); box-shadow: 0 0 0 2px rgba(97,0,255,.22); }
+.parr { text-align: center; color: #6f68a0; font-size: .6rem; line-height: 1; margin: .16rem 0; }
+.pipe-join { text-align: center; padding: 0 .1rem; }
+.pipe-join .pj-arrow { display: block; font-size: 1.15rem; line-height: 1; color: var(--ps-danger); }
+.pipe-join .pj-lab {
+  display: block; margin-top: .2rem; font-size: .54rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--ps-mut);
+}
+
 /* terminal blocks: dark on the light ground (endorsed "specific background") */
 .term {
   background: #0c0a17; border: 1px solid #2a2350; border-radius: 12px;

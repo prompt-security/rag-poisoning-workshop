@@ -244,34 +244,111 @@ and its attack surface are the same sentence.
 
 ---
 
+<div class="kicker">Before you decide this doesn't apply to you</div>
+
+# You may not call it RAG. You're still running it.
+
+<div class="small muted mt-1">The hype moved on to agents, reasoning models and million-token windows. The engineering pattern — fetch somebody's text, paste it into the prompt — is more common than it has ever been. It just answers to other names now.</div>
+
+<div class="cols-3 mt-4 text-sm">
+<div class="card"><strong>"Grounding"</strong><div class="tiny muted mt-1">The enterprise word. Microsoft and Google both sell retrieval as <em>grounding the model in your data</em>; AWS ships it as Bedrock <strong>Knowledge Bases</strong>. Nobody writes "we built a RAG pipeline" in a design doc any more.</div></div>
+<div class="card"><strong>"Knowledge tool" · "connector"</strong><div class="tiny muted mt-1">Inside an agent, retrieval isn't the architecture — it's <em>one tool among many</em>: <code>file_search</code>, a knowledge base, a Drive / Notion / Confluence connector, an MCP server that hands back documents.</div></div>
+<div class="card"><strong>"In-context learning"</strong><div class="tiny muted mt-1">The research framing: the evidence arrives through the <strong>context window</strong>, not the weights. Papers routinely fold retrieved passages into this term. Different vocabulary, identical data path.</div></div>
+</div>
+
+<div v-click class="mt-4 card card-deep">
+<div class="tag mb-1">the only test that matters</div>
+<div class="small">Ask it of any system, whatever the label: <strong class="text-white">does text somebody else wrote end up inside the model's context window?</strong> If yes, everything in the next 80 minutes applies to it. When a team tells you "we don't do RAG" — ask which of these names they use instead.</div>
+</div>
+
+<!--
+This slide exists to kill the "RAG is a 2023 problem, we're doing agents now" objection before it forms.
+Ask the room out loud: "who has the word GROUNDING or KNOWLEDGE BASE in a design doc this quarter?" —
+more hands go up than for the word RAG. Land the click: the alias never changes the data path, so the
+attack you are about to run is not scoped to systems that still use the old name.
+-->
+
+---
+
+<div class="kicker">It didn't die — it moved down the stack and grew</div>
+
+# Why it went quiet, and where it went
+
+<div class="cols-2 mt-4 text-sm">
+
+<div class="card">
+<div class="tag mb-1">"long context killed RAG"</div>
+<div class="tiny">It didn't. Million-token windows made "just paste the whole corpus" thinkable, but brute-forcing a million tokens per query is slow and expensive — retrieving the right 50k still wins on cost, latency <em>and</em> accuracy. And a bigger window is <strong>more</strong> attacker room, not less: more chunks admitted, more places to bury a payload.</div>
+</div>
+
+<div class="card">
+<div class="tag mb-1">it became infrastructure</div>
+<div class="tiny">In 2023, shipping RAG was a project you'd blog about. Now it's a checkbox in your vector DB, your LLM platform, your orchestration framework — turned on by default, by someone who never wrote a threat model for it.</div>
+</div>
+
+<div class="card">
+<div class="tag mb-1">GraphRAG</div>
+<div class="tiny">Knowledge graph <em>plus</em> vector search, so the system follows <strong>relationships</strong> between concepts instead of keyword similarity alone. Security effect: a poisoned node inherits the graph's edges — it can be pulled into answers it could never have matched on similarity.</div>
+</div>
+
+<div class="card card-deep">
+<div class="tag mb-1">Agentic RAG</div>
+<div class="tiny">The model writes its own search queries, judges whether what came back is good enough, and rewrites and retries when it isn't. More retrieval attempts per question, all chosen by the model — and <strong class="text-white">nobody reads the intermediate queries.</strong></div>
+</div>
+
+</div>
+
+<div v-click class="mt-4 small">
+Notice the direction of travel: each of these <strong>widens</strong> the funnel of outside text reaching the prompt and <strong>removes</strong> a human from the loop. The naive pipeline you'll attack in ten minutes is the <em>easy</em> case.
+</div>
+
+<!--
+First to cut if Part 1 runs long — the alias slide before it is the load-bearing one of the pair.
+If you keep it, the payoff is the closing line: participants attack the simplest possible pipeline
+today, and every "modern" variant back at the office has a LARGER surface than the lab, not a smaller one.
+-->
+
+---
+
 <div class="kicker">The pipeline has two halves</div>
 
 # Who owns the left half?
 
-```mermaid {theme: 'dark', scale: 0.82}
-flowchart LR
-  subgraph IN["🗄️  INGESTION  — offline, nobody is watching"]
-    D[Documents<br/>wiki · tickets · PDFs · crawl] --> S[Chunk + split]
-    S --> E1[Embed]
-    E1 --> V[(Vector DB)]
-  end
-  subgraph OUT["💬  RETRIEVAL — online, per query"]
-    Q[User question] --> E2[Embed query]
-    E2 --> R{Similarity<br/>search}
-    V --> R
-    R --> C[Top-k chunks]
-    C --> P[Assemble prompt]
-    P --> L[LLM]
-    L --> A[Answer]
-  end
-  style IN fill:#140d33,stroke:#6100ff,color:#c9b8ff
-  style OUT fill:#10204a,stroke:#2c2358,color:#cfe0ff
-  style V fill:#2a1220,stroke:#ff3d6e,color:#ff9bb6
-```
+<div class="pipe mt-5">
+
+<div class="pipe-half pipe-in">
+<div class="pipe-hd">🗄️ Ingestion — offline, nobody is watching</div>
+<div class="pnode">Documents<span>wiki · tickets · PDFs · crawl</span></div>
+<div class="parr">▼</div>
+<div class="pnode">Chunk + split</div>
+<div class="parr">▼</div>
+<div class="pnode">Embed</div>
+<div class="parr">▼</div>
+<div class="pnode pnode-db">Vector DB</div>
+</div>
+
+<div class="pipe-join"><span class="pj-arrow">➜</span><span class="pj-lab">same index</span></div>
+
+<div class="pipe-half pipe-out">
+<div class="pipe-hd">💬 Retrieval — online, per query</div>
+<div class="pnode">User question</div>
+<div class="parr">▼</div>
+<div class="pnode">Embed query</div>
+<div class="parr">▼</div>
+<div class="pnode pnode-hit">Similarity search</div>
+<div class="parr">▼</div>
+<div class="pnode">Top-k chunks</div>
+<div class="parr">▼</div>
+<div class="pnode">Assemble prompt<span>system + chunks + question</span></div>
+<div class="parr">▼</div>
+<div class="pnode">LLM → answer</div>
+</div>
+
+</div>
 
 <div class="cols-2 mt-4">
-<div v-click class="small muted">Everyone secures the <strong class="text-white">right</strong> half — the chat box, the user's prompt, output filters.</div>
-<div v-click class="small"><strong class="text-white">The attacker lives in the left half.</strong> Whoever can write a document that gets indexed has reached into the prompt — asynchronously, before any victim ever types a question.</div>
+<div v-click="2" class="small"><strong class="text-white">The attacker lives in the left half.</strong> Whoever can write a document that gets indexed has reached into the prompt — asynchronously, before any victim ever types a question.</div>
+<div v-click="1" class="small muted">Everyone secures the <strong class="text-white">right</strong> half — the chat box, the user's prompt, output filters.</div>
 </div>
 
 <!--
