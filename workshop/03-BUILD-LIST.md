@@ -30,7 +30,7 @@ bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already f
   -n 256 --host 0.0.0.0 --port 8080 -a local-model --jinja`. `-c` must be ≥ 2048×np. Pre-warm it. For a
   large tail, run 2–3 boxes split by `.env` IP. (See 02 §"Scale note".)
 - **Test the room network** for AP/client isolation; pre-stand a phone hotspot / tunnelled cloud box.
-- **Pre-pull models** on the instructor box: a participant-grade `qwen2.5:3b-instruct` and one 7–8B showpiece.
+- **Pre-pull models** on the instructor box: a participant-grade `phi4-mini` and one larger showpiece (Phi-4 14B).
 - Rehearse the full run end-to-end on the workshop branch.
 
 ## C. Assets

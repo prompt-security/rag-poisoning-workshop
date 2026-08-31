@@ -154,7 +154,7 @@ Everyone runs a model <strong>locally, on their own machine</strong> — llama-s
 </div>
 
 <div class="mt-4 text-center tiny muted">
-Pick a model that fits <em>your</em> machine: a <strong>3B instruct</strong> (qwen2.5:3b / llama3.2:3b) is the sweet spot — big enough to follow injected instructions, small enough to be fast, context ≥ 2048 so the retrieved chunks aren't truncated. Under ~1.5B is too erratic; reasoning/"thinking" models break the demo.
+Pick a model that fits <em>your</em> machine: a <strong>~4B instruct</strong> (phi4-mini / phi3.5) is the sweet spot — big enough to follow injected instructions, small enough to be fast, context ≥ 2048 so the retrieved chunks aren't truncated. Under ~1.5B is too erratic; reasoning/"thinking" models break the demo.
 </div>
 
 <!--
@@ -942,7 +942,7 @@ python src/rag_poisoning_demo.py --infer openai \
 <div class="card card-deep">
 <div class="tag mb-2">what the program does</div>
 <div class="small">It's not a framework — it's <strong class="text-white">one script</strong>: build a 3-doc corpus, embed it, run your queries; then add <em>one</em> poisoned doc and run the same queries again. The whole attack is the diff between those two runs.</div>
-<div class="tiny muted mt-3">Endpoint set once in <code>.env</code> (bare origin, no <code>/v1</code>). Small models vary — if yours won't comply, try a 3B instruct (qwen2.5:3b / llama3.2:3b) or nudge your phrasing.</div>
+<div class="tiny muted mt-3">Endpoint set once in <code>.env</code> (bare origin, no <code>/v1</code>). Small models vary — if yours won't comply, try a ~4B instruct (phi4-mini / phi3.5) or nudge your phrasing.</div>
 </div>
 </div>
 
