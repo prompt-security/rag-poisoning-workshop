@@ -5,24 +5,34 @@ builds a corpus and runs it with and without the poisoned document. The work bel
 to files that already exist**, plus install/infra. There is no `ctf.py`, no `defense_scan.py`, no levels,
 no leaderboard.
 
-## A. Code edits (workshop branch) — the 5 changes that unblock the lab
+## A. Code edits — the changes that unblock the lab
 
-| # | File:line | Change | Why |
-|---|-----------|--------|-----|
-| 1 | `src/llm_factory.py:34` | `model=config.ollama_model` instead of hardcoded `"llama3:8b-instruct-q5_0"`; also add a generic **openai-compatible** provider reading `LLM_BASE_URL`/`LLM_MODEL`/`LLM_API_KEY` (key default `not-needed`) | Otherwise every Ollama/LM Studio/llama-server user 404s at query one |
-| 2 | `src/rag_poisoning_demo.py:65` | add `openai` to `--infer` choices | Gives llama-server + LM Studio a path in (bring-your-own-endpoint) |
-| 3 | `src/rag_poisoning_corpus.py:66` | `create_poisoned_document(payload=...)` + a `--payload-file FILE` flag on the entrypoint | Lets participants inject **their own** poison doc (Lab 2) |
-| 4 | `src/attack_demo.py:23` | a `--query "..."` (single query) option instead of the fixed 5×2 = 10 | The recorded run was 26–90 s/query; 10 queries = 10 min of spinner |
-| 5 | `src/attack_demo.py:49` | print `doc.page_content` for each source **and** the assembled prompt (`--show-prompt`) | The single most important thing to show — the injected line inside `{context}` |
+All land as PRs against `main` on `prompt-security/RAG_Poisoning_POC` — there is no separate workshop
+branch (see [`02-PREFLIGHT-AND-ENDPOINTS.md`](02-PREFLIGHT-AND-ENDPOINTS.md)).
+
+| # | File:line | Change | Status |
+|---|-----------|--------|--------|
+| 1 | `src/llm_factory.py:34` | `model=config.ollama_model` instead of hardcoded `"llama3:8b-instruct-q5_0"`; a generic **openai-compatible** provider reading `OPENAI_COMPAT_BASE_URL`/`OPENAI_COMPAT_MODEL` (no API key — every supported endpoint is unauthenticated) | **DONE** (RAG_Poisoning_POC#1) |
+| 2 | `src/rag_poisoning_demo.py` | `openai-compat` added to `--infer` choices | **DONE** (RAG_Poisoning_POC#1) — the flag value is `openai-compat`, not `openai`; the deck was fixed to match (rag-poisoning-workshop#10) |
+| 3 | `src/rag_poisoning_corpus.py:66` | `create_poisoned_document(payload=...)` + a `--payload-file FILE` flag on the entrypoint | **DONE** (RAG_Poisoning_POC#7) |
+| 4 | `src/attack_demo.py` | a `--query "..."` (single query) option instead of the fixed 5×2 = 10 | **DROPPED** — the deck's actual lab commands never use it (only `--infer`, `--show-prompt`, `--payload-file`); reproducible defaults (item below) get local latency to ~2–3 s/query without it |
+| 5 | `src/attack_demo.py` | print the assembled prompt (`--show-prompt`) | **DONE** (RAG_Poisoning_POC#7) |
 
 Also (small, config-level, from the install recon):
-- `src/config.py:36` — make `TRANSFORMERS_OFFLINE` opt-in (`os.getenv('TRANSFORMERS_OFFLINE','0')`) so a cold cache downloads instead of throwing a misleading offline error.
-- Set `temperature=0` on every provider branch and default `max_tokens≈128` for reproducible, fast demos.
-- Default `TOP_K_RETRIEVAL=4` (deterministic poison retrieval — see the "Top-k" slide).
-- `requirements.workshop.txt` = `requirements.txt` minus `llama-cpp-python` (source build) plus `pip-system-certs` (Zscaler TLS fix).
+- `src/config.py:36` — make `TRANSFORMERS_OFFLINE` opt-in. **DELIBERATELY NOT DONE** — judged a
+  behavioral change not worth bundling into the preflight PR. `src/preflight.py` instead warns about
+  the resulting cold-cache error, and `./setup.sh --no-local` pre-downloads the cache so it doesn't fire.
+- Set `temperature=0` and `max_tokens=128` on the ollama/openai-compat provider branches. **DONE**
+  (RAG_Poisoning_POC#8).
+- Default `TOP_K_RETRIEVAL=4` in `.env.example` (deterministic poison retrieval — see the "Top-k"
+  slide). **DONE** (RAG_Poisoning_POC#8).
+- `requirements.workshop.txt` = `requirements.txt` minus `llama-cpp-python` (source build) plus
+  `pip-system-certs` (Zscaler TLS fix); `./setup.sh --no-local` selects it automatically. **DONE**
+  (RAG_Poisoning_POC#10).
 
 *(Optional, ~20 lines, not required):* a throwaway `grep`/regex one-liner for the "beat a naive filter"
-bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already frames it as `grep`.
+bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already frames it as `grep`. Still
+not built — no need to; participants write the payload, `grep` is illustrative only.
 
 ## B. Instructor infrastructure
 
@@ -31,7 +41,7 @@ bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already f
   large tail, run 2–3 boxes split by `.env` IP. (See 02 §"Scale note".)
 - **Test the room network** for AP/client isolation; pre-stand a phone hotspot / tunnelled cloud box.
 - **Pre-pull models** on the instructor box: a participant-grade `phi4-mini` and one larger showpiece (Phi-4 14B).
-- Rehearse the full run end-to-end on the workshop branch.
+- Rehearse the full run end-to-end on `main` once all the PRs above are merged.
 
 ## C. Assets
 
@@ -45,7 +55,8 @@ bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already f
 ---
 
 ### Suggested order
-1. The 5 code edits + config tweaks + `requirements.workshop.txt` on the workshop branch; verify against a
-   real 3B endpoint on this machine.
-2. Confirm the deck's lab commands match the final flag names (adjust either side to agree).
+1. ~~The code edits + config tweaks + `requirements.workshop.txt`, verified against a real 3B endpoint.~~
+   Done — see the Status column above.
+2. ~~Confirm the deck's lab commands match the final flag names.~~ Done (rag-poisoning-workshop#10
+   fixed `--infer openai` → `--infer openai-compat`, the only mismatch found).
 3. Instructor infra + rehearsal close to the date.
