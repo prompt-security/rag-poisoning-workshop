@@ -4,42 +4,42 @@
 
 ## Participant pre-flight (do 24h+ ahead)
 
-1. **Clone the workshop branch (NOT main):**
+1. **Clone `main`** — there is no separate workshop branch; all workshop-required fixes land on `main`:
    ```bash
-   git clone -b workshop <repo-url> && cd RAG_Poisoning_POC
+   git clone https://github.com/prompt-security/RAG_Poisoning_POC.git && cd RAG_Poisoning_POC
    ```
-   Two long-standing defects made `main` unusable for anyone on Ollama, llama-server or LM Studio:
-   there was no OpenAI-compatible provider at all, and `llm_factory.py` printed your configured model
-   then ignored it, hardcoding `llama3:8b-instruct-q5_0` — a 404 at minute one for every Ollama user.
-   Both are fixed by prompt-security/RAG_Poisoning_POC#1, which also adds `src/preflight.py`. Until
-   that merges, use the workshop branch.
+   The two long-standing defects that made `main` unusable for anyone on Ollama, llama-server or LM
+   Studio — no OpenAI-compatible provider at all, and `llm_factory.py` printing your configured model
+   then ignoring it, hardcoding `llama3:8b-instruct-q5_0` — were fixed by
+   prompt-security/RAG_Poisoning_POC#1, which also added `src/preflight.py`.
+   **Before relying on this guide, confirm** prompt-security/RAG_Poisoning_POC#5 and #6 are merged too
+   — a later, unrelated dependency bump (`langchain` 0.1.0→1.3.9) broke installability and the demo's
+   own `RetrievalQA` import; #5/#6 are the fix. `git log` for those PR titles if unsure.
 
-   > `--show-prompt`, single-query mode, `defense_scan.py` and `ctf.py` were **dropped from scope** —
-   > the demo is the repo's real `src/rag_poisoning_demo.py`. Don't reintroduce them.
+   > `--show-prompt` and `--payload-file` are real flags on `src/rag_poisoning_demo.py` as of
+   > prompt-security/RAG_Poisoning_POC#7 — confirm that one's merged too. Single-query mode,
+   > `defense_scan.py` and `ctf.py` were **dropped from scope** and stay dropped — the demo is the
+   > repo's real `src/rag_poisoning_demo.py` with those two added flags. Don't reintroduce them.
 
-2. **Install (no compiler needed):**
-   ```bash
-   uv venv --python=3.11 && uv pip install -r requirements.workshop.txt
-   ```
-   ~1–3 min, dominated by the ~480 MB torch download. **Do NOT use the default `requirements.txt`** —
-   its `llama-cpp-python` line builds from source and hard-fails on any machine without cmake + Xcode
-   CLT, even for people who only use a remote endpoint. `requirements.workshop.txt` drops it and adds
-   `pip-system-certs` (fixes the Zscaler/corporate-proxy TLS failure — a no-op off-proxy).
-
-3. **Pre-download the embedding model, ONLINE, on home wifi (mandatory):**
+2. **Install and pre-download the embedding model, ONLINE, on home wifi (mandatory), in one step:**
    ```bash
    ./setup.sh --no-local
    ```
-   Fetches all-MiniLM-L6-v2 (~87 MB). Required for both clean and poisoned phases regardless of LLM.
+   `--no-local` selects `requirements.workshop.txt` automatically (as of
+   prompt-security/RAG_Poisoning_POC#10) — no compiler needed, no manual requirements-file juggling.
+   **Do NOT run a bare `uv pip install -r requirements.txt` yourself first** — its `llama-cpp-python`
+   line builds from source and hard-fails on any machine without cmake + Xcode CLT, even for people
+   who only use a remote endpoint. ~1–3 min, dominated by the ~480 MB torch download, then fetches
+   all-MiniLM-L6-v2 (~87 MB) — required for both clean and poisoned phases regardless of LLM.
 
-4. **Pick and prepare ONE endpoint** (see matrix below). If bringing your own, pull ONE small chat
+3. **Pick and prepare ONE endpoint** (see matrix below). If bringing your own, pull ONE small chat
    model on home wifi. **Models ≤1.5B are BANNED** (40–60% compliance = flopped demo);
    **reasoning/thinking models are BANNED** (they narrate the injection and break the clean binary).
 
-5. **Configure `.env`** from the matching template. **Base URL = BARE ORIGIN**: no `/v1` suffix
+4. **Configure `.env`** from the matching template. **Base URL = BARE ORIGIN**: no `/v1` suffix
    (code appends it → `/v1/v1` → 404) and no trailing slash (→ `//v1` → 307).
 
-6. **Run the self-check and report:**
+5. **Run the self-check and report:**
    ```bash
    python3 src/preflight.py --one-line
    ```

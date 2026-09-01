@@ -3,10 +3,12 @@
 A 90-minute, instructor-led, **hands-on** workshop on RAG poisoning / indirect prompt injection via
 vector-database embeddings. Participants run the attack themselves against a small local model endpoint.
 
-> **Status:** private, in preparation. Will be made public before the workshop.
-> This repo currently holds the **workshop design + slide deck**. The runnable demo code (a lightly
-> patched version of the public [abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot) PoC)
-> will be added during the code phase — see [`workshop/03-BUILD-LIST.md`](workshop/03-BUILD-LIST.md).
+> **Status:** internal (org-visible), in preparation.
+> This repo holds the **workshop design + slide deck**. The runnable demo code lives in the separate,
+> public [prompt-security/RAG_Poisoning_POC](https://github.com/prompt-security/RAG_Poisoning_POC)
+> repo (a lightly patched fork of [abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot)) —
+> clone and run that one; see [`workshop/02-PREFLIGHT-AND-ENDPOINTS.md`](workshop/02-PREFLIGHT-AND-ENDPOINTS.md)
+> for exact steps, or [`workshop/03-BUILD-LIST.md`](workshop/03-BUILD-LIST.md) for what changed there and why.
 
 ## What's here
 | Path | What |
@@ -68,12 +70,17 @@ The workshop runs on a lightly patched copy of the public
 upstream and run it, you'll hit a few rough edges — each is a small, real RAG-security lesson:
 
 - **Hardcoded model** `llama3:8b-instruct-q5_0` in `llm_factory.py` → 404s every Ollama / LM Studio user.
-  *Fix in the workshop branch: read the model from config; add a generic OpenAI-compatible provider.*
+  *Fixed on `main` (prompt-security/RAG_Poisoning_POC#1) — there is no separate workshop branch; the
+  model now reads from config, and a generic OpenAI-compatible provider was added.*
 - **Forced `TRANSFORMERS_OFFLINE=1`** in `config.py` → a cold embedding cache throws a misleading
-  "no internet" error even when online. *Fix: make it opt-in.*
+  "no internet" error even when online. **Still forced, deliberately** (making it opt-in was judged a
+  behavioral change not worth smuggling into the preflight PR) — `src/preflight.py` instead warns
+  about the exact failure, and `./setup.sh --no-local` pre-downloads the cache so the error never
+  fires in practice.
 - **A 6-word regex "success" metric** — the reported "80%" is 4/5 queries, a single run at temperature 0.7,
   on a query set that leans toward the poison's own topic. Treat it as a demo, not a benchmark.
 - **`top_k=3` against a 4-document corpus** → the poison isn't always retrieved (the Q3 "clean" result is
-  a retrieval miss, not model resistance). *The workshop sets `top_k=4` so the demo is reproducible.*
+  a retrieval miss, not model resistance). *Fixed: `.env.example` now ships `top_k=4` so the demo is
+  reproducible (prompt-security/RAG_Poisoning_POC#8).*
 
 These are called out here rather than on a slide — they're facilitator/reader notes, not presentation content.
