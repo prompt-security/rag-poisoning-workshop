@@ -1,0 +1,27 @@
+workshop/03-BUILD-LIST.md
+  14e2b787bfdb772d 10-19,22-31,34-35,44,58-61
+workshop/00-RUN-OF-SHOW.md
+  14e2b787bfdb772d 10-13,16-19
+workshop/04-DECISIONS-RISKS-OPEN.md
+  14e2b787bfdb772d 25-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "2.0.0",
+  "base_commit_sha": "e85cf21ef6c045f486e74fa664a716ca017bf062",
+  "prompts": {
+    "14e2b787bfdb772d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "50dc4ded-0c5d-4ee1-96e9-6d022fb105ff",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "David Abutbul <David.a@prompt.security>",
+      "messages": [],
+      "total_additions": 42,
+      "total_deletions": 23,
+      "accepted_lines": 40,
+      "overriden_lines": 0
+    }
+  }
+}
