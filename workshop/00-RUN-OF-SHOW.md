@@ -7,10 +7,16 @@ runs code, then a single self-paced lab lets participants reproduce, weaponize, 
 naive defense with their own hands.
 
 **Design principle #1 — latency is the enemy.** The original recorded run took 26–90 s *per query*
-× 10 queries. The workshop harness runs **ONE query at a time, temperature 0, max_tokens 128,
-streaming**, and always teaches *while* tokens generate. Nobody watches a silent spinner.
+× 10 queries. The workshop harness runs at **temperature 0, max_tokens 128** for fast, reproducible
+results (~2–3 s/query local). There is no single-query or streaming mode — the script still runs the
+whole clean-then-poisoned batch in one invocation — so always teach *while* it generates: narrate the
+mechanism on the projector, or run with `--show-prompt` and point at the assembled prompt as it prints.
+Nobody watches a silent spinner.
 
-**Design principle #0 — no invented tooling.** The lab uses the repo's real `src/rag_poisoning_demo.py` with a handful of added flags (`--infer openai`, `--payload-file`, `--show-prompt`, single `--query`). There is no `ctf.py`, no levels, no leaderboard — just the one script that builds a corpus and runs it with and without the poisoned document.
+**Design principle #0 — no invented tooling.** The lab uses the repo's real `src/rag_poisoning_demo.py`
+with two added flags (`--show-prompt`, `--payload-file`), plus the existing `--infer openai-compat` /
+`ollama` / `deepseek` provider selection. There is no `ctf.py`, no levels, no leaderboard — just the one
+script that builds a corpus and runs it with and without the poisoned document.
 
 **Design principle #2 — nothing that can't finish in-room happens in-room.** All installs, model
 downloads, and the embedding-model cache are PRE-FLIGHT (see `02-PREFLIGHT-AND-ENDPOINTS.md`).

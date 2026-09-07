@@ -22,8 +22,10 @@
   desync; its structure *is* the mechanism.
 - **Grafted an early guaranteed win (L1) at minute 18** — fixes the "no keyboard until 36" front-load
   that all three judges flagged, without abandoning mechanism-first teaching.
-- **One query per attempt, temp 0, max_tokens 128, streaming, warm 3B** — over the shipped 10-query
-  temp-0.7 batch (10+ min of spinner, non-reproducible).
+- **Temp 0, max_tokens 128, warm 3B** — over the shipped 10-query temp-0.7 batch (10+ min of spinner,
+  non-reproducible). Shipped as defaults in `llm_factory.py`/`.env.example`. Single-query-per-attempt
+  and streaming were considered but not built — the deck's lab still runs the full clean+poisoned
+  batch in one invocation; the reproducible defaults alone bring it to ~2–3 s/query local.
 - **Retrieval-gating taught via the repo's OWN recorded output slide**, live retrieval-race demoted to
   an optional fast-finisher stretch — the recorded miss is guaranteed; a live miss at top-k=4 is not.
 - **"Write your own payload → beat the naive scanner" is the core of the lab, bounded honestly** — the

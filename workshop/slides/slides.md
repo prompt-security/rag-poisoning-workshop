@@ -514,7 +514,7 @@ layout: section
 ```bash
 # run the shipped demo against YOUR endpoint:
 # builds corpus → clean run → poisoned run
-python src/rag_poisoning_demo.py --infer openai
+python src/rag_poisoning_demo.py --infer openai-compat
 ```
 
 <div class="mt-4 small space-y-2">
@@ -528,7 +528,7 @@ python src/rag_poisoning_demo.py --infer openai
 
 <div>
 <div class="term">
-<span class="c-prompt">$</span> python src/rag_poisoning_demo.py --infer openai
+<span class="c-prompt">$</span> python src/rag_poisoning_demo.py --infer openai-compat
 <br/><span class="c-mut">PHASE 1 — clean corpus</span>
 <br/>Q: load balancing → <span class="c-clean">✅ CLEAN</span>
 <br/><span class="c-mut">PHASE 2 — poisoned corpus (+1 doc)</span>
@@ -1000,10 +1000,10 @@ layout: section
 ```bash
 # the shipped clean-vs-poisoned demo,
 # pointed at YOUR endpoint
-python src/rag_poisoning_demo.py --infer openai
+python src/rag_poisoning_demo.py --infer openai-compat
 
 # see the assembled prompt + retrieved chunks
-python src/rag_poisoning_demo.py --infer openai \
+python src/rag_poisoning_demo.py --infer openai-compat \
     --show-prompt
 ```
 
@@ -1037,7 +1037,7 @@ python src/rag_poisoning_demo.py --infer openai \
 $EDITOR my_poison.txt
 
 # 2. run the demo with YOUR document
-python src/rag_poisoning_demo.py --infer openai \
+python src/rag_poisoning_demo.py --infer openai-compat \
     --payload-file my_poison.txt
 ```
 
