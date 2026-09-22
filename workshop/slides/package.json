@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "slidev --open",
+    "split": "node scripts/split-slides.mjs",
     "build": "slidev build",
     "build:pages": "slidev build --base /rag-poisoning-workshop/ --out dist",
     "export": "slidev export --format pdf",

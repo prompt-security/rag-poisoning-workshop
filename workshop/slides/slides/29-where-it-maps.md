@@ -1,0 +1,31 @@
+<div class="kicker">Standards · half the room will quote 2025 from memory</div>
+
+# Where it maps
+
+<div class="cols-2 mt-4">
+<div class="card">
+<div class="tag mb-2">OWASP Top 10 for LLM Apps (2026)</div>
+<div class="small space-y-1">
+
+- **LLM01** Prompt Injection — the mechanism
+- **LLM05:2026** Data & Model Poisoning <span class="muted tiny">(was LLM04:2025)</span>
+- **LLM09:2026** Vector & Embedding Weaknesses <span class="muted tiny">(was LLM08:2025)</span>
+- **LLM03:2026** Excessive Agency — the blast radius
+
+</div>
+</div>
+<div class="card">
+<div class="tag mb-2">MITRE ATLAS · NIST</div>
+<div class="small space-y-1">
+
+- **AML.T0051** LLM Prompt Injection<br/><span class="muted tiny">.000 Direct · .001 Indirect</span>
+- **AML.CS0035** Slack AI case study
+- **NIST AI 100-2e2025** — adversarial ML taxonomy for governance
+
+</div>
+</div>
+</div>
+
+<div class="mt-4 tiny muted text-center">
+OWASP 2026 numbering confirmed from three agreeing sources (genai.owasp.org returned 403 at prep time). If challenged: say so.
+</div>
