@@ -1,0 +1,67 @@
+workshop/slides/slides/33-payload-placement-phrasing.md
+  e980950c571dc7ca 26-29
+NOTICE
+  e980950c571dc7ca 1-70
+.github/workflows/release.yml
+  e980950c571dc7ca 31-32,34,54-56,65-67,70-71,82,96
+README.md
+  e980950c571dc7ca 9,12-14,23,25-29,46-48,63-68,72-73,90-105
+workshop/03-BUILD-LIST.md
+  e980950c571dc7ca 30-31,40,45,50-51,62
+.gitignore
+  e980950c571dc7ca 1-18,35-38
+workshop/slides/slides/29-where-it-maps.md
+  e980950c571dc7ca 30,32-37
+LICENSE-MAP.md
+  e980950c571dc7ca 1-65
+workshop/slides/slides/27-slack-ai-data-exfiltration.md
+  e980950c571dc7ca 5,22-28
+workshop/02-PREFLIGHT-AND-ENDPOINTS.md
+  e980950c571dc7ca 51-52,122-124,129-131,152
+workshop/README.md
+  e980950c571dc7ca 3-4,12,15-17
+workshop/04-DECISIONS-RISKS-OPEN.md
+  e980950c571dc7ca 37-39,52-59,61-67,69-76
+CONTRIBUTING.md
+  e980950c571dc7ca 1-61
+CODE_OF_CONDUCT.md
+  e980950c571dc7ca 1-62
+workshop/slides/package.json
+  e980950c571dc7ca 5
+workshop/00-RUN-OF-SHOW.md
+  e980950c571dc7ca 41-43,56,91,124-125,127-129,131-136,165-168
+.github/workflows/pages.yml
+  e980950c571dc7ca 39-40
+workshop/slides/slides/28-the-research-is-clear-the-deployments-aren-t.md
+  e980950c571dc7ca 7-12
+workshop/slides/slides/44-a-document-in-your-corpus-is-not-data-the-model.md
+  e980950c571dc7ca 14-15,21-22,25
+workshop/01-CONTENT-OUTLINE.md
+  e980950c571dc7ca 1
+SECURITY.md
+  e980950c571dc7ca 1-45
+.github/workflows/validate.yml
+  e980950c571dc7ca 5-8,31-32,34-35,50-51
+workshop/slides/README.md
+  e980950c571dc7ca 40-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "2.0.0",
+  "base_commit_sha": "bfd0d42b38baed3843b062e45e466b3c7e514dc0",
+  "prompts": {
+    "e980950c571dc7ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "576d1665-e3b9-4003-95fc-a0f111073641",
+        "model": "claude-opus-5"
+      },
+      "human_author": "David Abutbul <David.a@prompt.security>",
+      "messages": [],
+      "total_additions": 556,
+      "total_deletions": 177,
+      "accepted_lines": 498,
+      "overriden_lines": 44
+    }
+  }
+}
