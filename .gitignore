@@ -1,3 +1,21 @@
+# OS / editor cruft
+# .DS_Store records a folder's listing (including names of files since deleted),
+# so it is worth keeping out of a public repo, not just out of the way.
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
 # python
 .venv/
 __pycache__/
@@ -14,3 +32,7 @@ workshop/slides/.slidev/
 workshop/slides/build/
 workshop/slides/*.pptx
 workshop/slides/*.pdf
+# Exported decks are build output: release.yml attaches PDF + PPTX to each tagged
+# Release, so they are never committed (a checked-in copy just goes stale).
+workshop/*.pdf
+workshop/*.pptx

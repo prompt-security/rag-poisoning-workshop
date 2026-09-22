@@ -2,6 +2,7 @@
   "name": "hidden-parrot-workshop-slides",
   "type": "module",
   "private": true,
+  "license": "AGPL-3.0-only AND CC-BY-SA-4.0",
   "scripts": {
     "dev": "slidev --open",
     "split": "node scripts/split-slides.mjs",

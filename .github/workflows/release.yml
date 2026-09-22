@@ -28,8 +28,10 @@ jobs:
 
       - name: Resolve version + tag
         id: v
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="$INPUT_TAG"
           echo "tag=$TAG"           >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}"   >> "$GITHUB_OUTPUT"
 
@@ -49,7 +51,9 @@ jobs:
       - run: pip install python-pptx
 
       - name: Install agg (asciinema -> gif)
-        run: cargo install --git https://github.com/asciinema/agg --tag v1.5.0
+        # Pinned to the commit v1.5.0 pointed at — a git tag is mutable and this job holds
+        # `contents: write` plus GH_TOKEN, so a retagged upstream would run here with upload rights.
+        run: cargo install --git https://github.com/asciinema/agg --rev 5592b9790ba7c6d5ffa232176e29a1d3cadf8fe2
 
       - name: Ensure ffmpeg
         run: ffmpeg -version >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
@@ -58,9 +62,13 @@ jobs:
         run: bash scripts/make-videos.sh build/vid
 
       - name: Export PDF (recordings as placeholders)
-        run: npx slidev export --format pdf --output "The-Hidden-Parrot-Workshop-${{ steps.v.outputs.version }}.pdf"
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
+        run: npx slidev export --format pdf --output "The-Hidden-Parrot-Workshop-${VERSION}.pdf"
 
       - name: Export PPTX and embed MP4 videos
+        env:
+          VERSION: ${{ steps.v.outputs.version }}
         run: |
           set -euo pipefail
           # one PPTX slide per deck slide (do NOT expand clicks) so slide indices line up
@@ -71,7 +79,7 @@ jobs:
           python scripts/embed_pptx_videos.py slides-export.pptx \
             "$HP:build/vid/hidden_parrot_rec.mp4:build/vid/hidden_parrot_rec.poster.png" \
             "$PF:build/vid/ps_fuzz_rec.mp4:build/vid/ps_fuzz_rec.poster.png"
-          mv slides-export.pptx "The-Hidden-Parrot-Workshop-${{ steps.v.outputs.version }}.pptx"
+          mv slides-export.pptx "The-Hidden-Parrot-Workshop-${VERSION}.pptx"
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
@@ -85,9 +93,9 @@ jobs:
       - name: Publish / update the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.v.outputs.tag }}
         run: |
           set -euo pipefail
-          TAG="${{ steps.v.outputs.tag }}"
           NOTES="Workshop deck for **The Hidden Parrot** ${TAG}.
 
           - **PDF** — static; the two recorded terminal sessions appear as a placeholder (a static PDF cannot hold video).

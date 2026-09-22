@@ -1,4 +1,4 @@
-# Pre-flight & Endpoint Setup — Participant Guide (staged for review)
+# Pre-flight & Endpoint Setup — Participant Guide
 
 > **Everything here happens BEFORE the room, on home wifi.** Nothing GB-scale downloads in-session.
 
@@ -48,8 +48,8 @@
    On failure prints ONE reason + remedy:
    `PREFLIGHT FAIL: ollama daemon not reachable -- ollama serve`
 
-   **Paste the PASS line + your name + endpoint type into the shared thread ≥24h ahead** so the
-   instructor sizes the shared endpoint and spots red laptops early.
+   **Send the PASS line + your name + endpoint type to the instructor ≥24h ahead** (whatever channel
+   they nominate) so they can size the shared endpoint and spot red laptops early.
 
    For the full diagnostic instead of one line, drop `--one-line`. Useful extras:
    ```bash
@@ -119,17 +119,17 @@ curl -s http://localhost:8080/v1/chat/completions -H 'Content-Type: application/
 - **Cold start looks like a hang** — 16.8 s cold vs 0.2 s warm (Ollama); 25.9 s to load an 8B (LM
   Studio). Everyone runs the warm-up curl; set keep-alive/ttl.
 
-## Scale note — 100+ participants, open personal machines
-At this scale **BYO local endpoint is the PRIMARY path, not the fallback** — you cannot funnel 100+
-people through one shared box. Everyone runs their own 3B locally (open machines make this easy). The
-shared endpoint shrinks to a **failure-tail** absorber (target ≤10–15% who fail local setup). This
+## Scale note — large rooms (100+), open personal machines
+At this scale **BYO local endpoint is the PRIMARY path, not the fallback** — you cannot funnel that
+many people through one shared box. Everyone runs their own 3B locally (open machines make this easy).
+The shared endpoint shrinks to a **failure-tail** absorber (target ≤10–15% who fail local setup). This
 makes two things non-negotiable:
 - **The 24h-ahead PREFLIGHT PASS roster is mandatory**, not nice-to-have — it's the only way to know the
   BYO success rate before the room fills and to size the failure tail.
-- **The minute-0 individual triage gate does not scale to 100+.** Replace it with: self-service
-  troubleshooting card, 4–6 roaming TAs, neighbor-pairing by default, and a big projected
-  green/red counter. Accept that a fraction will watch rather than run — the leaderboard and
-  show-and-tell scale fine, and the pre-recorded captures cover anyone who can't run live.
+- **A per-person triage gate at minute 0 does not scale.** Replace it with: a self-service
+  troubleshooting card, 4–6 roaming TAs, neighbour-pairing by default, and a big projected
+  green/red counter. Accept that a fraction will watch rather than run — the show-and-tell scales
+  fine, and the pre-recorded captures cover anyone who can't run live.
 
 ## Shared-endpoint plan (the failure-tail fallback — instructor)
 Goal: any failed laptop changes ONE `.env` line and runs within 60 s, repo unpatched. **Size the box
@@ -149,7 +149,7 @@ llama-server -m ~/models/Phi-4-mini-instruct.Q4_K_M.gguf \
   cloud box (tailscale funnel / cloudflared) as backup — client-isolated wifi is the #1 way this dies.
 
 ## The unprepared participant
-Someone who did nothing cannot be installed in-room (torch + a 2 GB pull over conference wifi eats the
+Someone who did nothing cannot be installed in-room (torch + a 2 GB pull over venue wifi eats the
 session). The shared-endpoint path needs only clone + venv + MiniLM cache (no model, no local server),
 so most are recoverable in the 8-min gate by switching `.env` to the shared IP (~5–10 min incl. torch).
 For truly-nothing or corporate-locked laptops: keep **3–4 USB sticks** pre-staged with a built venv +

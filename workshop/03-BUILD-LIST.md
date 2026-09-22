@@ -27,7 +27,8 @@ Also (small, config-level, from the install recon):
 - Default `TOP_K_RETRIEVAL=4` in `.env.example` (deterministic poison retrieval — see the "Top-k"
   slide). **DONE** (RAG_Poisoning_POC#8).
 - `requirements.workshop.txt` = `requirements.txt` minus `llama-cpp-python` (source build) plus
-  `pip-system-certs` (Zscaler TLS fix); `./setup.sh --no-local` selects it automatically. **DONE**
+  `pip-system-certs`, which makes pip trust the OS certificate store — needed on any machine behind a
+  TLS-inspecting corporate proxy. `./setup.sh --no-local` selects it automatically. **DONE**
   (RAG_Poisoning_POC#10).
 
 *(Optional, ~20 lines, not required):* a throwaway `grep`/regex one-liner for the "beat a naive filter"
@@ -36,19 +37,18 @@ not built — no need to; participants write the payload, `grep` is illustrative
 
 ## B. Instructor infrastructure
 
-- **Shared fallback llama-server** sized to the *failure tail* (not the full 100+): `-c 32768 -np 12 -cb
+- **Shared fallback llama-server** sized to the *failure tail*, not the whole room: `-c 32768 -np 12 -cb
   -n 256 --host 0.0.0.0 --port 8080 -a local-model --jinja`. `-c` must be ≥ 2048×np. Pre-warm it. For a
   large tail, run 2–3 boxes split by `.env` IP. (See 02 §"Scale note".)
 - **Test the room network** for AP/client isolation; pre-stand a phone hotspot / tunnelled cloud box.
 - **Pre-pull models** on the instructor box: a participant-grade `phi4-mini` and one larger showpiece (Phi-4 14B).
-- Rehearse the full run end-to-end on `main` once all the PRs above are merged.
+- Rehearse the full run end-to-end on `main` before the session.
 
 ## C. Assets
 
-- **Slidev deck** — `slides/slides.md`, done (Parts 1–6, current PS brand). Fill in the workshop repo/branch
-  URL on the closing slide.
-- **Recorded demos** — reused from `abutbul/hidden_parrot`: `hidden_parrot_rec` (canonical run / fallback)
-  and `ps_fuzz_rec` (bonus). Already wired into the deck via `slidev-addon-asciinema`.
+- **Slidev deck** — `slides/slides.md`, done (Parts 1–6, current PS brand).
+- **Recorded demos** — `hidden_parrot_rec` (canonical run / fallback) and `ps_fuzz_rec` (bonus),
+  already wired into the deck via `slidev-addon-asciinema`.
 - **Handouts (optional but high-value):** the endpoint cheat card (4 runtime recipes + `.env` + verify
   curl), the mitigation take-home 1-pager, the honest-homework caveat card.
 
@@ -59,4 +59,4 @@ not built — no need to; participants write the payload, `grep` is illustrative
    Done — see the Status column above.
 2. ~~Confirm the deck's lab commands match the final flag names.~~ Done (rag-poisoning-workshop#10
    fixed `--infer openai` → `--infer openai-compat`, the only mismatch found).
-3. Instructor infra + rehearsal close to the date.
+3. Instructor infra + a full rehearsal shortly before you run the session.

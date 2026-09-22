@@ -36,8 +36,8 @@ jobs:
 
       - run: npm ci
 
-      # Resolve the correct base path FIRST: '/' for the access-controlled *.pages.github.io
-      # domain used by private/internal repos, or '/<repo>/' for a public project site.
+      # Resolve the correct base path FIRST: '/<repo>/' for a public project site, or '/' for the
+      # access-controlled *.pages.github.io domain a private/internal repo would get.
       - id: pages
         uses: actions/configure-pages@v5
         with:
