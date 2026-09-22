@@ -16,7 +16,7 @@ class: text-center
 <div class="mt-2 small">Load balancing distributes incoming requests across multiple servers to prevent bottlenecks and ensure high availability…</div>
 </div>
 
-<div class="card card-deep">
+<div v-click class="card card-deep">
 <div class="tag tag-poison mb-2">after — one wiki page added</div>
 
 **Q:** *How do distributed systems handle load balancing?* <span class="muted small">(same question)</span>
