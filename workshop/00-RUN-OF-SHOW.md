@@ -1,4 +1,4 @@
-# The Hidden Parrot — 90-Minute Workshop Run-of-Show
+# The Poisoned Pill — 90-Minute Workshop Run-of-Show
 
 **Format:** instructor-led, hands-on. Every participant personally runs the RAG-poisoning
 attack against an endpoint they control (or a shared fallback).

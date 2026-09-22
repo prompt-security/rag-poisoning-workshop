@@ -64,7 +64,7 @@ jobs:
       - name: Export PDF (recordings as placeholders)
         env:
           VERSION: ${{ steps.v.outputs.version }}
-        run: npx slidev export --format pdf --output "The-Hidden-Parrot-Workshop-${VERSION}.pdf"
+        run: npx slidev export --format pdf --output "The-Poisoned-Pill-Workshop-${VERSION}.pdf"
 
       - name: Export PPTX and embed MP4 videos
         env:
@@ -79,15 +79,15 @@ jobs:
           python scripts/embed_pptx_videos.py slides-export.pptx \
             "$HP:build/vid/hidden_parrot_rec.mp4:build/vid/hidden_parrot_rec.poster.png" \
             "$PF:build/vid/ps_fuzz_rec.mp4:build/vid/ps_fuzz_rec.poster.png"
-          mv slides-export.pptx "The-Hidden-Parrot-Workshop-${VERSION}.pptx"
+          mv slides-export.pptx "The-Poisoned-Pill-Workshop-${VERSION}.pptx"
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: hidden-parrot-workshop-${{ steps.v.outputs.version }}
+          name: poisoned-pill-workshop-${{ steps.v.outputs.version }}
           path: |
-            workshop/slides/The-Hidden-Parrot-Workshop-*.pdf
-            workshop/slides/The-Hidden-Parrot-Workshop-*.pptx
+            workshop/slides/The-Poisoned-Pill-Workshop-*.pdf
+            workshop/slides/The-Poisoned-Pill-Workshop-*.pptx
           if-no-files-found: error
 
       - name: Publish / update the GitHub Release
@@ -96,14 +96,14 @@ jobs:
           TAG: ${{ steps.v.outputs.tag }}
         run: |
           set -euo pipefail
-          NOTES="Workshop deck for **The Hidden Parrot** ${TAG}.
+          NOTES="Workshop deck for **The Poisoned Pill** ${TAG}.
 
           - **PDF** — static; the two recorded terminal sessions appear as a placeholder (a static PDF cannot hold video).
           - **PPTX** — the same deck with the two recordings embedded as low-quality MP4 movies (play in PowerPoint).
           - The live/interactive deck (with playable recordings) is on GitHub Pages."
           gh release view "$TAG" >/dev/null 2>&1 \
-            || gh release create "$TAG" --title "The Hidden Parrot $TAG" --notes "$NOTES"
+            || gh release create "$TAG" --title "The Poisoned Pill $TAG" --notes "$NOTES"
           gh release upload "$TAG" \
-            The-Hidden-Parrot-Workshop-*.pdf \
-            The-Hidden-Parrot-Workshop-*.pptx \
+            The-Poisoned-Pill-Workshop-*.pdf \
+            The-Poisoned-Pill-Workshop-*.pptx \
             --clobber

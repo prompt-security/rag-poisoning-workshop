@@ -1,4 +1,4 @@
-# RAG Poisoning Workshop — The Hidden Parrot
+# The Poisoned Pill — Turning Your Crewmate into a Pirate
 
 A 90-minute, instructor-led, **hands-on** workshop on RAG poisoning / indirect prompt injection via
 vector-database embeddings. Participants run the attack themselves against a small local model endpoint.

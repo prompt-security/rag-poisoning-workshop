@@ -1,4 +1,4 @@
-# Workshop Planning — The Hidden Parrot (RAG Poisoning)
+# Workshop Planning — The Poisoned Pill (RAG Poisoning)
 
 Facilitator docs for the 90-minute instructor-led, hands-on workshop. If you want to run this
 yourself, read 02 (participant prep) and 00 (the timeline) first.

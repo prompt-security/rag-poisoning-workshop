@@ -31,7 +31,7 @@ git tag -a v1.1.0 -m "v1.1.0 — <one line summary>"
 git push origin v1.1.0
 ```
 
-Within a few minutes the **Releases** page will have `The-Hidden-Parrot-Workshop-1.1.0.pdf` and
+Within a few minutes the **Releases** page will have `The-Poisoned-Pill-Workshop-1.1.0.pdf` and
 `…-1.1.0.pptx` attached. The same files are also on the workflow run as downloadable artifacts.
 
 ### Rebuild artifacts for an existing tag

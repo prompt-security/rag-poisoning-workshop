@@ -1,4 +1,4 @@
-# Slidev deck — The Hidden Parrot
+# Slidev deck — The Poisoned Pill
 
 The workshop presentation. ~33 slides mapped 1:1 to `../00-RUN-OF-SHOW.md`.
 
