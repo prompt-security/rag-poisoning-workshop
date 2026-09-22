@@ -3,7 +3,7 @@
    unstyled/invisible). Must precede all other rules. */
 @import 'asciinema-player/dist/bundle/asciinema-player.css';
 
-/* ── The Hidden Parrot — Prompt Security (current brand) · LIGHT theme ───── */
+/* ── The Poisoned Pill — Prompt Security (current brand) · LIGHT theme ───── */
 /* Palette from prompt.security (2026): electric purple + lime accents on a light ground. */
 :root {
   --ps-brand:    #6100ff;   /* electric purple — primary accent            */

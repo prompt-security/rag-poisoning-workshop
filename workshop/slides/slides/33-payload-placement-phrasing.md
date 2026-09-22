@@ -23,6 +23,10 @@
 Placement matters too: put it <strong class="text-white">mid-document</strong>, wrapped in genuine technical prose, so both the human reviewer skimming and the retriever's relevance both see a legitimate doc. The instruction rides along in the same chunk.
 </div>
 
+<div class="mt-3 tiny muted">
+<strong>Scope:</strong> persona and output-format changes only, on the corpus and endpoint you're running yourself. We're showing that phrasing defeats keyword matching — which is the argument <em>against</em> content filtering as a control, not a recipe to take elsewhere.
+</div>
+
 <!--
 Three phrasings on a spectrum: obvious (teachable, catchable) → stealth (the Beat-C challenge) → and note
 that optimized-token attacks in the literature go further. Keep it benign: persona/format changes only.

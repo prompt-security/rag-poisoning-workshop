@@ -27,5 +27,11 @@
 </div>
 
 <div class="mt-4 tiny muted text-center">
-OWASP 2026 numbering confirmed from three agreeing sources (genai.owasp.org returned 403 at prep time). If challenged: say so.
+Both numbering schemes shown — OWASP renumbered for 2026 and plenty of teams still quote the 2025 IDs from memory. Check <code>genai.owasp.org</code> for the current list.
 </div>
+
+<!--
+The 2026 numbering here was confirmed from three agreeing secondary sources; genai.owasp.org was
+returning 403 at prep time. If someone challenges a specific number, say that plainly and point them
+at the OWASP site rather than defending the digit.
+-->

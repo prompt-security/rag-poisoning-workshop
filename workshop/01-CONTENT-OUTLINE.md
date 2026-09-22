@@ -1,4 +1,4 @@
-# Teaching Content — Staged for Review
+# Teaching Content
 
 Everything the instructor says, grounded in real literature. Citations are confidence-tagged;
 `[verified]` = title/authors/venue confirmed, `[probable]` = exists but some details are researcher

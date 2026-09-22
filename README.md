@@ -1,14 +1,17 @@
-# RAG Poisoning Workshop — The Hidden Parrot
+# The Poisoned Pill — Turning Your Crewmate into a Pirate
 
 A 90-minute, instructor-led, **hands-on** workshop on RAG poisoning / indirect prompt injection via
 vector-database embeddings. Participants run the attack themselves against a small local model endpoint.
 
-> **Status:** internal (org-visible), in preparation.
 > This repo holds the **workshop design + slide deck**. The runnable demo code lives in the separate,
 > public [prompt-security/RAG_Poisoning_POC](https://github.com/prompt-security/RAG_Poisoning_POC)
-> repo (a lightly patched fork of [abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot)) —
-> clone and run that one; see [`workshop/02-PREFLIGHT-AND-ENDPOINTS.md`](workshop/02-PREFLIGHT-AND-ENDPOINTS.md)
+> repo — clone and run that one; see
+> [`workshop/02-PREFLIGHT-AND-ENDPOINTS.md`](workshop/02-PREFLIGHT-AND-ENDPOINTS.md)
 > for exact steps, or [`workshop/03-BUILD-LIST.md`](workshop/03-BUILD-LIST.md) for what changed there and why.
+
+**Everything here is scoped to a model endpoint you run yourself.** The workshop teaches how corpus
+poisoning works so you can defend against it; the payloads are deliberately benign persona/format
+changes. See [SECURITY.md](SECURITY.md) for scope and reporting.
 
 ## What's here
 | Path | What |
@@ -17,9 +20,13 @@ vector-database embeddings. Participants run the attack themselves against a sma
 | [`workshop/01-CONTENT-OUTLINE.md`](workshop/01-CONTENT-OUTLINE.md) | Teaching content, literature, mitigations, accuracy caveats |
 | [`workshop/02-PREFLIGHT-AND-ENDPOINTS.md`](workshop/02-PREFLIGHT-AND-ENDPOINTS.md) | Participant setup + endpoint matrix (llama-server / Ollama / LM Studio / shared) |
 | [`workshop/03-BUILD-LIST.md`](workshop/03-BUILD-LIST.md) | The 5 code edits + infra needed before the workshop |
-| [`workshop/04-DECISIONS-RISKS-OPEN.md`](workshop/04-DECISIONS-RISKS-OPEN.md) | Decisions, risk register, open questions |
+| [`workshop/04-DECISIONS-RISKS-OPEN.md`](workshop/04-DECISIONS-RISKS-OPEN.md) | Learning objectives, design decisions, risk register, pre-run checklist |
 | [`workshop/slides/`](workshop/slides/) | The Slidev deck (`slides.md`) — `npm i && npm run dev` |
-| `workshop/HiddenParrot-workshop-deck.pdf` | Exported PDF of the deck for quick review |
+
+Want to read the deck without building it? The live version is on
+[GitHub Pages](https://prompt-security.github.io/rag-poisoning-workshop/), and every
+[Release](https://github.com/prompt-security/rag-poisoning-workshop/releases) has a PDF and a PPTX
+attached. Exported decks are build output and are deliberately not committed.
 
 ## The deck
 ```bash
@@ -36,14 +43,9 @@ npm run dev        # http://localhost:3030 — live, interactive, recordings pla
 
 | Format | Where | Recordings |
 |---|---|---|
-| **Live Slidev** | GitHub Pages (org-members only — see repo **Settings → Pages** for the current URL) | play as interactive asciinema players (with controls) |
-| **PPTX** | attached to each [Release](../../releases) | embedded as low-quality MP4 movies (play in PowerPoint) |
-| **PDF** | attached to each [Release](../../releases) | a placeholder card (a static PDF can't hold video) |
-
-> **Pages is access-controlled.** This is an **internal** org repo, so GitHub serves the deck from an
-> obfuscated `https://<random>.pages.github.io/` URL visible only to `prompt-security` members (find it
-> in **Settings → Pages**). The `pages.yml` workflow derives the correct base path automatically, so it
-> keeps working the same way if the repo is ever made public.
+| **Live Slidev** | [prompt-security.github.io/rag-poisoning-workshop](https://prompt-security.github.io/rag-poisoning-workshop/) | play as interactive asciinema players (with controls) |
+| **PPTX** | attached to each [Release](https://github.com/prompt-security/rag-poisoning-workshop/releases) | embedded as low-quality MP4 movies (play in PowerPoint) |
+| **PDF** | attached to each [Release](https://github.com/prompt-security/rag-poisoning-workshop/releases) | a placeholder card (a static PDF can't hold video) |
 
 - **GitHub Pages** redeploys on every push to `main` (`.github/workflows/pages.yml`).
 - **PDF + PPTX** rebuild and attach to the Release whenever a `vX.Y.Z` **tag** is pushed
@@ -58,16 +60,17 @@ npm run videos          # MP4s from the recordings  (needs agg + ffmpeg)
 npm run export:pptx     # PPTX (then run scripts/embed_pptx_videos.py to embed the MP4s)
 ```
 
-## Companion
-The research-talk deck, full paper, and blog posts live in
-[github.com/abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot). This workshop deck is the
-hands-on "lab" companion to that overview.
+## Related
+- **[prompt-security/RAG_Poisoning_POC](https://github.com/prompt-security/RAG_Poisoning_POC)** — the
+  runnable demo this workshop drives. Clone this one to follow along.
+- **[prompt-security/ps-fuzz](https://github.com/prompt-security/ps-fuzz)** — the open-source LLM
+  fuzzer shown on the closing slides; it ships a `rag_poisoning` attack module that automates what
+  the lab does by hand.
 
-## Note: known quirks in the upstream PoC (and why they're instructive)
+## Note: known quirks in the PoC (and why they're instructive)
 
-The workshop runs on a lightly patched copy of the public
-[abutbul/hidden_parrot](https://github.com/abutbul/hidden_parrot) PoC. If you clone the **as-shipped**
-upstream and run it, you'll hit a few rough edges — each is a small, real RAG-security lesson:
+The demo code accumulated a few rough edges before the workshop patches landed. They are worth
+knowing about, because each is a small, real RAG-security lesson:
 
 - **Hardcoded model** `llama3:8b-instruct-q5_0` in `llm_factory.py` → 404s every Ollama / LM Studio user.
   *Fixed on `main` (prompt-security/RAG_Poisoning_POC#1) — there is no separate workshop branch; the
@@ -84,3 +87,19 @@ upstream and run it, you'll hit a few rough edges — each is a small, real RAG-
   reproducible (prompt-security/RAG_Poisoning_POC#8).*
 
 These are called out here rather than on a slide — they're facilitator/reader notes, not presentation content.
+
+## License
+
+Dual-licensed, split by what the material actually is:
+
+- **The workshop itself** — slides, docs, recordings — is **[CC BY-SA 4.0](LICENSE-CONTENT)**. Run it,
+  translate it, remix it, present it commercially. Attribute it, and share adaptations alike.
+- **The build tooling** — CI workflows, export scripts, styles, config — is **[AGPL-3.0-only](LICENSE)**.
+
+[**LICENSE-MAP.md**](LICENSE-MAP.md) lists exactly which paths fall under which.
+
+Prompt Security names and logos are trademarks and are covered by **neither** grant — swap in your
+own branding if you adapt the deck. Third-party fonts and stylesheets keep their own terms; see
+[NOTICE](NOTICE).
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).

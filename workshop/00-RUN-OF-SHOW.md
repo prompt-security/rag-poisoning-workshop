@@ -1,4 +1,4 @@
-# The Hidden Parrot — 90-Minute Workshop Run-of-Show
+# The Poisoned Pill — 90-Minute Workshop Run-of-Show
 
 **Format:** instructor-led, hands-on. Every participant personally runs the RAG-poisoning
 attack against an endpoint they control (or a shared fallback).
@@ -38,10 +38,9 @@ downloads, and the embedding-model cache are PRE-FLIGHT (see `02-PREFLIGHT-AND-E
 
 **Hands-on total: 30 min** (Lab 1 + Lab 2), plus 26 min of teaching that is directly about *doing* the attack (mechanism + how-to-craft). **What gets cut first if late:** the `grep`-bypass bonus challenge → then P1's "Why it went quiet, and where it went" slide (long context / infrastructure / GraphRAG / Agentic RAG) → then the how-to-craft section (P4) compresses to the single "3 levers" slide → then mitigations trim to three lines (the rest is on the take-home 1-pager). P1's "You may not call it RAG" alias slide is *not* cut — without it a chunk of the room files this under "2023 problem." The "write your own payload" beat (Lab 2) is *never* cut.
 
-> **Note:** the deck (`slides/slides.md`) is the source of truth for exact content and now maps to
-> Parts 1–6 as in the table above. The per-segment write-ups below predate the P4 "how-to-craft"
-> section and the switch from the invented `ctf.py` to the real `rag_poisoning_demo.py`; treat them
-> as intent/talk-track, and the deck as authoritative for what's on screen.
+> **Note:** the deck (`slides/slides.md`) is the source of truth for exact content and maps to
+> Parts 1–6 as in the table above. Treat the per-segment write-ups below as intent and talk-track,
+> and the deck as authoritative for what's on screen.
 
 ---
 
@@ -54,8 +53,8 @@ query eats the 16–25 s cold-start.
   board: **BARE ORIGIN — no `/v1`, no trailing slash.** Confirm shared llama-server is up and warm.
 - **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` switches ONE
   line in `.env` to the shared endpoint and re-runs; still red → pair with a green neighbor.
-- **Participants:** run `python ctf.py --check` → confirm PASS (this warms your endpoint) → post
-  name to leaderboard.
+- **Participants:** run `python3 src/preflight.py --one-line` → confirm `PREFLIGHT PASS` (this warms
+  your endpoint).
 - **Hard cap 8:00.** Don't start teaching until ~80% green or routed.
 - **Risk:** guest wifi client-isolation kills the shared endpoint for everyone.
   **Fallback:** phone hotspot or pre-stood tunnelled cloud box (tested from the room beforehand);
@@ -89,8 +88,9 @@ their planted prediction — a confirmed prediction, not a passive reveal. Warms
 - **Instructor:** 60-s theatrical run on the 7–8B showpiece box first (reads better on a
   projector), then kick the room off. WHILE queries generate, narrate the `--show-prompt` output —
   physically point at the `[CRITICAL SYSTEM INSTRUCTION …]` chunk sitting inside `{context}`.
-- **Participants:** `python ctf.py --level 1`, then re-run with `--show-prompt`; find the injected
-  instruction inside their own printed prompt; check their prediction; post PASS to leaderboard.
+- **Participants:** `python src/rag_poisoning_demo.py --infer openai-compat`, then re-run with
+  `--show-prompt`; find the injected instruction inside their own printed prompt; check their
+  prediction.
 - **Risk:** a too-small/too-aligned model doesn't comply, or Ollama silently truncates on small
   `n_ctx`. **Fallback:** reframe non-compliance AS the lesson ("attack success is model-dependent —
   an argument against trusting any one model's resistance as a control"); project the instructor's
@@ -121,17 +121,19 @@ their planted prediction — a confirmed prediction, not a passive reveal. Warms
 just means fewer iterations, not a room-wide desync.
 - **Set pace out loud first:** single queries only; ~2–3 s local / 15–30 s shared; "slow is
   queueing — do NOT re-run and hammer the shared box."
-- **Beat B (~14 min):** everyone edits `levels/my_payload.txt` to write their OWN benign
-  instruction (persona/format change), re-runs `ctf.py --level 2`, confirms it fires. Harvest 2–3
-  divergent results aloud.
-- **Beat C (~12 min):** run your payload through `defense_scan.py` (naive regex scanner). The
-  bracketed payload gets CAUGHT. Challenge: rewrite it as ordinary prose (an "editor's note on
-  house style") so it PASSES the scanner but still hijacks the model. **Bound the lesson honestly:**
-  this proves *naive* pattern-matching fails; ML classifiers / LLM-judges raise the bar; the
-  optimized-payload literature defeats even those. Don't let the regex stand for all content inspection.
-- **Stretch (fast finishers):** `ctf.py --level 3 --retrieval-only` gives INSTANT embedding-only
-  rank feedback (NO LLM call) — get your doc into top-k for an OFF-TOPIC query, then one `--fire`
-  (gated behind a rank-pass) to confirm detonation. Retrieval engineering, latency-free.
+- **Beat B (~14 min):** everyone writes their OWN benign instruction (persona/format change) into a
+  file and re-runs with `--payload-file my_poison.txt`, confirming it fires. Harvest 2–3 divergent
+  results aloud.
+- **Beat C (~12 min):** grep your own payload for the obvious markers (`grep -iE
+  'system|ignore previous|\[' my_poison.txt`). The bracketed payload gets CAUGHT. Challenge: rewrite
+  it as ordinary prose (an "editor's note on house style") so it passes that grep but still hijacks
+  the model. **Bound the lesson honestly:** this proves *naive* pattern-matching fails; ML classifiers
+  / LLM-judges raise the bar; the optimized-payload literature defeats even those. Don't let one grep
+  stand for all content inspection.
+- **Stretch (fast finishers):** widen the payload's semantic reach — rewrite it to sit near several
+  unrelated queries at once (the "semantic width" lever from P4) and see which questions start
+  retrieving it. Retrieval engineering, and the `Sources:` line gives feedback without a second
+  inference pass.
 - **Risk:** (1) weak/over-aligned models → muddy success spread; (2) mass fallback saturates the
   shared box. **Fallback:** (1) reframe the spread AS the lesson; route below-par laptops to the
   known-good shared 3B; (2) shared box is sized (`-np 12 -c 32768`, measured ~3.5 min for the room);
@@ -160,10 +162,10 @@ just means fewer iterations, not a room-wide desync.
   without a human?
 
 ### 84–90 · BUFFER · Wrap + honest-homework caveat
-- Absorb overrun; crown the leaderboard.
-- **Honest homework caveat:** "We taught on a patched workshop branch. Clone the AS-SHIPPED public
-  repo at home and watch the hardcoded `llama3:8b-instruct-q5_0` 404 you, the forced
-  `TRANSFORMERS_OFFLINE` flag mislead you, and the 6-word regex overcount success — those defects
+- Absorb overrun; take the best two or three payloads from the room and read them out.
+- **Honest homework caveat:** "The demo you ran is patched. Read the known-quirks section in the
+  workshop README and see how the hardcoded `llama3:8b-instruct-q5_0` would 404 you, how the forced
+  `TRANSFORMERS_OFFLINE` flag misleads you, and how a 6-word regex overcounts success — those defects
   are themselves the lesson."
 - **Closing line:** *"A document in your RAG corpus is not data the model reads — it is code the
   model may run, and it persists until you evict the embedding."*

@@ -1,4 +1,4 @@
-# Slidev deck — The Hidden Parrot
+# Slidev deck — The Poisoned Pill
 
 The workshop presentation. ~33 slides mapped 1:1 to `../00-RUN-OF-SHOW.md`.
 
@@ -37,12 +37,12 @@ npm run export         # single PDF (needs playwright-chromium, already a devDep
   has `<!-- notes -->` with talk-track and timing cues.
 - **Brand:** theme pulled live from prompt.security (2026) — navy `#0b0c1b`, electric purple `#6100ff`,
   lime `#8fff08`, Quicksand font. Tokens live in `styles/index.css`.
-- **Real demo recordings:** `public/hidden_parrot_rec` and `public/ps_fuzz_rec` are reused from
-  David's research repo (github.com/abutbul/hidden_parrot) via `slidev-addon-asciinema`. The
-  "Recorded: clean → poisoned" slide is the canonical run / total-failure fallback; the ps-fuzz slide
-  is a bonus appendix. The small inline terminals on the lab slides are labeled *schematic* (expected
-  output), not placeholders.
-- **This is the WORKSHOP deck.** David's research-talk deck is a separate companion (kept distinct by
-  decision) — the closing slide links to it as the deep-dive/overview.
-- **Fill in before the event:** the workshop repo/branch URL on the closing slide, and confirm the
-  code harness commands shown on the lab slides once that branch exists (`../03-BUILD-LIST.md`).
+- **Real demo recordings:** `public/hidden_parrot_rec` and `public/ps_fuzz_rec` are real captures,
+  played via `slidev-addon-asciinema`. The "Recorded: clean → poisoned" slide is the canonical run and
+  the total-failure fallback; the ps-fuzz slide is a bonus appendix. The small inline terminals on the
+  lab slides are labeled *schematic* (expected output), not placeholders.
+- **This is the WORKSHOP deck** — the hands-on lab. It stands alone; a research-talk deck covering the
+  same mechanism is a separate companion and the two are deliberately not merged.
+- **Before you present:** re-run the lab commands on the current `main` of
+  [RAG_Poisoning_POC](https://github.com/prompt-security/RAG_Poisoning_POC) and confirm the flags on
+  the lab slides still match (see `../03-BUILD-LIST.md`).

@@ -1,9 +1,9 @@
 ---
 theme: default
-title: The Hidden Parrot — RAG Poisoning
+title: The Poisoned Pill — Turning Your Crewmate into a Pirate
 info: |
-  ## The Hidden Parrot — Stealthy Prompt Injection & Poisoning in RAG Systems
-  A 90-minute hands-on workshop. Brought to you by Prompt Security.
+  ## The Poisoned Pill — Turning Your Crewmate into a Pirate
+  Stealthy prompt injection & poisoning in RAG systems. A 90-minute hands-on workshop. Brought to you by Prompt Security.
 class: text-center
 highlighter: shiki
 lineNumbers: false

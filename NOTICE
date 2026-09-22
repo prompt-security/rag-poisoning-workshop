@@ -1,0 +1,70 @@
+The Poisoned Pill — Turning Your Crewmate into a Pirate
+Copyright (c) 2026 Prompt Security
+
+This repository is dual-licensed — see LICENSE-MAP.md for the path-by-path split:
+
+  Content (slides, workshop docs, recordings)  CC BY-SA 4.0   LICENSE-CONTENT
+  Code (build scripts, workflows, styles)      AGPL-3.0-only  LICENSE
+
+Neither grant relicenses the third-party material below.
+
+--------------------------------------------------------------------------------
+Trademarks and brand assets — covered by NEITHER grant
+--------------------------------------------------------------------------------
+
+  workshop/slides/public/prompt-logo.png
+  workshop/slides/public/prompt-icon.svg
+  The brand palette and wordmarks used in workshop/slides/styles/index.css
+
+"Prompt Security" and its logos are trademarks of Prompt Security. They are
+included so the deck renders as presented. You may redistribute the deck
+unmodified, but you may not use these marks to imply endorsement of, or
+affiliation with, a derivative work. Replace them with your own branding if you
+adapt the deck.
+
+--------------------------------------------------------------------------------
+Fonts — SIL Open Font License 1.1
+--------------------------------------------------------------------------------
+
+  Quicksand        Copyright (c) Andrew Paglinawan
+                   https://fonts.google.com/specimen/Quicksand
+  JetBrains Mono   Copyright (c) JetBrains s.r.o.
+                   https://github.com/JetBrains/JetBrainsMono
+
+Both are licensed under the SIL Open Font License, Version 1.1:
+https://openfontlicense.org/
+
+Note: these fonts are NOT vendored in this repository. They are fetched from
+Google Fonts at dev/build time via the `fonts:` headmatter in
+workshop/slides/slides.md. Building the deck therefore requires network access
+to fonts.googleapis.com and fonts.gstatic.com.
+
+--------------------------------------------------------------------------------
+Bundled stylesheet — Apache License 2.0
+--------------------------------------------------------------------------------
+
+  asciinema-player  Copyright (c) Marcin Kulik
+                    https://github.com/asciinema/asciinema-player
+
+workshop/slides/styles/index.css imports asciinema-player's stylesheet. The
+player is licensed under the Apache License 2.0:
+https://www.apache.org/licenses/LICENSE-2.0
+
+--------------------------------------------------------------------------------
+Terminal recordings
+--------------------------------------------------------------------------------
+
+  workshop/slides/public/hidden_parrot_rec
+  workshop/slides/public/ps_fuzz_rec
+
+Asciicast recordings of the demo and of prompt-security/ps-fuzz, captured by the
+authors. Licensed as content, under CC BY-SA 4.0.
+
+--------------------------------------------------------------------------------
+Cited research
+--------------------------------------------------------------------------------
+
+The deck cites published research (Greshake et al., Zhong et al., PoisonedRAG,
+BadRAG, AgentPoison, Morris II) and standards material (MITRE ATLAS, OWASP Top
+10 for LLM Applications, NIST AI 100-2). These works are the property of their
+respective authors and are cited, not redistributed.
