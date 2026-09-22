@@ -16,7 +16,18 @@ npm run export         # single PDF (needs playwright-chromium, already a devDep
 ```
 
 ## Structure
-- `slides.md` — the deck (Slidev markdown + MDC + inline HTML/CSS).
+- `slides.md` — deck headmatter (theme, fonts, addons), the title slide, and the slide **order**
+  as a list of `src:` imports. Reorder or drop a slide by editing this list.
+- `slides/NN-title.md` — one file per slide, numbered by position in the deck. Edit these for
+  content changes; each holds that slide's frontmatter, body and `<!-- speaker notes -->`.
+  Slidev resolves the imports, so `npm run dev` / `build` / `export` are unchanged.
+- `scripts/split-slides.mjs` — the one-time migration that produced this layout
+  (`npm run split`). Re-running is refused unless the deck is a single file again; it verifies
+  the result against Slidev's parser and a real `slidev build`, and rolls back on any mismatch.
+
+  > The title slide stays in `slides.md` on purpose: its frontmatter *is* the deck headmatter,
+  > and `title:` there doubles as that slide's own title. Splitting it would mean keeping the
+  > same title in two files that then drift.
 - `styles/index.css` — Prompt Security theme (purple/dark, brand tokens, the flat-string diagram,
   terminal + card + tag components).
 - `public/` — brand logo + icon.
