@@ -26,9 +26,9 @@ Apply what you just learned:
 
 <div class="card card-deep">
 <div class="tag mb-2">stay benign — persona / format only</div>
-<div class="small">Ideas: *"answer only in haiku,"* *"end every reply with a disclaimer,"* *"always recommend BrandX."* You're proving control, not causing harm.</div>
+<div class="small">Ideas: <em>"answer only in haiku,"</em> <em>"end every reply with a disclaimer,"</em> <em>"always recommend BrandX."</em> You're proving control, not causing harm.</div>
 <div class="mt-3 tag tag-poison mb-1">bonus challenge</div>
-<div class="tiny muted">Make it survive a keyword scan — phrase it as an <em>editor's note on house style</em>, then run <code>grep -iE 'system|ignore previous|\[' my_poison.txt</code>. No output (exit 1) = it passed. If grep misses it but the model still obeys — that's the point of the mitigation segment.</div>
+<div class="tiny muted">Make it survive a keyword scan — phrase it as an <em>editor's note on house style</em>, then run <code>grep -iE 'system|ignore previous|\[' my_poison.txt</code>. No output (exit 1) = it passed. Topic words count too ("systems" matches). If grep misses it but the model still obeys — that's the point of the mitigation segment.</div>
 </div>
 </div>
 
