@@ -21,6 +21,7 @@ changes. See [SECURITY.md](SECURITY.md) for scope and reporting.
 | [`workshop/02-PREFLIGHT-AND-ENDPOINTS.md`](workshop/02-PREFLIGHT-AND-ENDPOINTS.md) | Participant setup + endpoint matrix (llama-server / Ollama / LM Studio / shared) |
 | [`workshop/03-BUILD-LIST.md`](workshop/03-BUILD-LIST.md) | The 5 code edits + infra needed before the workshop |
 | [`workshop/04-DECISIONS-RISKS-OPEN.md`](workshop/04-DECISIONS-RISKS-OPEN.md) | Learning objectives, design decisions, risk register, pre-run checklist |
+| [`workshop/05-PARTICIPANT-QA.md`](workshop/05-PARTICIPANT-QA.md) | Participant Q&A: setup, endpoints, both labs, the `grep` check, building your own PoC |
 | [`workshop/slides/`](workshop/slides/) | The Slidev deck (`slides.md`) — `npm i && npm run dev` |
 
 Want to read the deck without building it? The live version is on
