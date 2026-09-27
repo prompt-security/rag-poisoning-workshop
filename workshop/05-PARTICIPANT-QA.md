@@ -15,9 +15,9 @@ room first, and for participants reading along.
 > endpoint you run yourself — same rule as the deck (slide 33) and [CONTRIBUTING.md](../CONTRIBUTING.md).
 > Helpers: don't help anyone turn a payload into exfiltration, credential access or tool abuse.
 
-**Shared endpoint.** The deck (slide 4) assumes none: everyone runs a local model. ([00](00-RUN-OF-SHOW.md)
-and [02](02-PREFLIGHT-AND-ENDPOINTS.md) describe an optional shared fallback; if your facilitator runs
-one, they'll give you its address.) Otherwise, if your endpoint is still red after the fixes below, pair
+**Shared endpoint.** The deck (slide 4) and the run-of-show assume none: everyone runs a local model.
+([02](02-PREFLIGHT-AND-ENDPOINTS.md) has an optional shared-box appendix; if your facilitator runs one,
+they'll give you its address.) Otherwise, if your endpoint is still red after the fixes below, pair
 with a green neighbour and follow the recorded run (slide 19) — see [K2](#k2-im-still-red-and-the-lab-is-starting).
 
 ## Fast triage
@@ -57,7 +57,7 @@ git log -1 --oneline        # tell a helper this line if you ask for help
 (`uv sync`). `requirements.workshop.txt` (the POC#10 that 02 and 03 cite) never landed on `main`. The
 compiler-free path is `./setup.sh --no-local`, which skips the optional `local` extra
 (`llama-cpp-python`). Don't `pip install` anything by hand.
-<sub>Source: POC history; `setup.sh` (uv sync block); `pyproject.toml` `[project.optional-dependencies]`. Doc drift in 02 step 2 and 03.</sub>
+<sub>Source: POC history; `setup.sh` (uv sync block); `pyproject.toml` `[project.optional-dependencies]`; 03 records the requirements file as superseded.</sub>
 
 ### A3. Do I need the workshop repo at all to do the labs?
 No. Everything you run is in `RAG_Poisoning_POC`. The deck is for reading along.
@@ -99,7 +99,7 @@ The embedding-model download at the end of setup goes through Python/HuggingFace
 that step fails on certificates too, point it at your corporate CA bundle with
 `export SSL_CERT_FILE=/path/to/corp-ca.pem` (httpx ignores `REQUESTS_CA_BUNDLE`), or do setup on a
 non-inspected network (a phone hotspot). *Not run here — no TLS-inspecting proxy was available.*
-<sub>Source: `uv help sync` (`--system-certs`, env `UV_SYSTEM_CERTS`). Doc drift: 03 mentions `pip-system-certs`, which the uv install doesn't use.</sub>
+<sub>Source: `uv help sync` (`--system-certs`, env `UV_SYSTEM_CERTS`). The uv install doesn't use `pip-system-certs` (03 records it as superseded).</sub>
 
 ### B5. The embedding model won't load ("offline" / "couldn't connect to huggingface.co") but my internet works
 `config.py` forces `TRANSFORMERS_OFFLINE=1`, so the demo can only use a **pre-downloaded**
@@ -615,8 +615,8 @@ or `code my_poison.txt`. Save it in the repo root (or pass its full path to `--p
 <sub>Source: slide 36.</sub>
 
 ### G8. My payload worked, then I changed almost nothing and it stopped working
-Expected with a small model. At temperature 0 the same exact text gives the same result every time, but
-small edits can swing it a lot. In our runs the "Editorial note" payload scored **4/5** with blank lines
+Expected with a small model. On one server at temperature 0, the same text gave the same result on every
+run, but small edits swung it a lot. In our runs the "Editorial note" payload scored **4/5** with blank lines
 between its paragraphs and **1/5** with the same words and no blank lines — reproduced back to back on
 one server. Treat any single number as one sample: compare `Response:` lines, vary the phrasing or
 placement, and re-run. This fragility is the argument on slides 21 and 37: model resistance isn't a

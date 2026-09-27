@@ -15,7 +15,7 @@ branch (see [`02-PREFLIGHT-AND-ENDPOINTS.md`](02-PREFLIGHT-AND-ENDPOINTS.md)).
 | 1 | `src/llm_factory.py:34` | `model=config.ollama_model` instead of hardcoded `"llama3:8b-instruct-q5_0"`; a generic **openai-compatible** provider reading `OPENAI_COMPAT_BASE_URL`/`OPENAI_COMPAT_MODEL` (no API key — every supported endpoint is unauthenticated) | **DONE** (RAG_Poisoning_POC#1) |
 | 2 | `src/rag_poisoning_demo.py` | `openai-compat` added to `--infer` choices | **DONE** (RAG_Poisoning_POC#1) — the flag value is `openai-compat`, not `openai`; the deck was fixed to match (rag-poisoning-workshop#10) |
 | 3 | `src/rag_poisoning_corpus.py:66` | `create_poisoned_document(payload=...)` + a `--payload-file FILE` flag on the entrypoint | **DONE** (RAG_Poisoning_POC#7) |
-| 4 | `src/attack_demo.py` | a `--query "..."` (single query) option instead of the fixed 5×2 = 10 | **DROPPED** — the deck's actual lab commands never use it (only `--infer`, `--show-prompt`, `--payload-file`); reproducible defaults (item below) get local latency to ~2–3 s/query without it |
+| 4 | `src/attack_demo.py` | a `--query "..."` (single query) option instead of the fixed 5×2 = 10 | **DROPPED** — the deck's actual lab commands never use it (only `--infer`, `--show-prompt`, `--payload-file`); reproducible defaults (item below) get local latency to ~0.3–2 s/query without it (measured: Apple Silicon, llama-server + Phi-4-mini) |
 | 5 | `src/attack_demo.py` | print the assembled prompt (`--show-prompt`) | **DONE** (RAG_Poisoning_POC#7) |
 
 Also (small, config-level, from the install recon):

@@ -55,7 +55,9 @@ query eats the 16–25 s cold-start. No shared endpoint, no shared fallback.
   (venv active: `source .venv/bin/activate`). Say it once: **base URL = BARE ORIGIN — no `/v1`, no
   trailing slash.**
 - **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` applies the
-  fix its FAIL line names (05-PARTICIPANT-QA "Fast triage") and re-runs; still red → pair with a
+  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10 — for `No runnable inference
+  path`, run the `--provider <engine>` check from D12, not the line's own suggestion) and re-runs;
+  still red → pair with a
   green neighbor and follow the recorded run (slide 19).
 - **Participants:** run `python3 src/preflight.py --one-line` inside the venv → confirm `PREFLIGHT
   PASS` (this warms your endpoint).
@@ -98,8 +100,8 @@ their planted prediction — a confirmed prediction, not a passive reveal. Warms
   prediction.
 - **Risk:** a too-small/too-aligned model doesn't comply, or Ollama silently truncates on small
   `n_ctx`. **Fallback:** reframe non-compliance AS the lesson ("attack success is model-dependent —
-  an argument against trusting any one model's resistance as a control"); project the instructor's
-  result as canonical; truncated laptops → fix the Ollama context (`OLLAMA_CONTEXT_LENGTH=4096` on
+  an argument against trusting any one model's resistance as a control"); project the recorded run
+  (slide 19) as canonical; truncated laptops → fix the Ollama context (`OLLAMA_CONTEXT_LENGTH=4096` on
   `ollama serve`, check `ollama ps`) or pair with a green neighbour; total network death →
   pre-recorded capture.
 

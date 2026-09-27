@@ -4,7 +4,7 @@
 
 ## Participant pre-flight (do 24h+ ahead)
 
-1. **Clone `main`** — there is no separate workshop branch; `main` has every workshop fix:
+1. **Clone `main`** — there is no separate workshop branch; all workshop fixes land on `main`:
    ```bash
    git clone https://github.com/prompt-security/RAG_Poisoning_POC.git && cd RAG_Poisoning_POC
    ```
@@ -39,7 +39,8 @@
 
 4. **Configure `.env`**: `cp .env.example .env` if you don't have one, then set the lines for your
    endpoint (runtimes table below). **Base URL = BARE ORIGIN**: no `/v1` suffix
-   (code appends it → `/v1/v1` → 404) and no trailing slash (older clones turn it into `//v1` → 307; current `main` strips it).
+   (code appends it → `/v1/v1` → 404) and no trailing slash (the demo turns it into `//v1` → 307, while preflight strips it and can
+   still PASS — remove it by hand).
 
 5. **Run the self-check (inside the venv) and report:**
    ```bash
@@ -82,7 +83,7 @@ GGUFs return HTTP `200`.
 
 | Model | Size | Runtimes | Behavior |
 |---|---|---|---|
-| **`phi4-mini` (Phi-4-mini-instruct Q4_K_M)** — TOP PICK | 2.32 GB | ollama, llama-server, LM Studio | **100% (5/5)** at top-k=4; 1.4–3.7 s/query warm on llama-server |
+| **`phi4-mini` (Phi-4-mini-instruct Q4_K_M)** — TOP PICK | 2.32 GB | ollama, llama-server, LM Studio | **100% (5/5)** at top-k=4; 1.4–3.7 s/query warm on llama-server (earlier run); ~0.3–2 s/query in the 2026-09 re-run on Apple Silicon |
 | **`phi3.5` (Phi-3.5-mini-instruct Q4_K_M)** — co-top | 2.23 GB | ollama, llama-server, LM Studio | 4/4 compliance whenever the poison was retrieved; 11–20 s/query in-process via llama-cpp-python |
 | Phi-4 (14B) Q4_K_M — SHOWPIECE (instructor only) | ~9 GB | any | most theatrical output; **not yet measured here** |
 | any instruct model ≤1.5B — **DO NOT USE** | — | — | 40–60%, high variance between runs |
@@ -143,7 +144,8 @@ fail local setup). This makes two things non-negotiable:
 > **Default run: no shared endpoint.** Red laptops pair with a green neighbour and follow the recorded
 > run (slide 19). Keep this section only if a facilitator chooses to add a shared box.
 
-Goal, if you add one: any failed laptop changes ONE `.env` line and runs within 60 s, repo unpatched.
+Goal, if you add one: any failed laptop changes ONE `.env` line (`OPENAI_COMPAT_BASE_URL`, then runs
+with `--infer openai-compat`) within 60 s, repo unpatched.
 **Size the box to the expected failure tail (e.g. ~15 concurrent for a 100-person room), NOT to the
 full headcount.** If the tail is larger, run 2–3 shared boxes and split by `.env` IP, or use a bigger
 cloud instance.
@@ -156,7 +158,7 @@ llama-server -m ~/models/Phi-4-mini-instruct.Q4_K_M.gguf \
 - `-np 12` = 12 concurrent slots (measured: 20 participants × 10 queries ≈ 3.3 min, 0 errors).
 - `-c 32768` MUST be ≥ 2048 × np — **llama.cpp DIVIDES `-c` by `-np`** (verified: `-c 4096 -np 20`
   gave 256 tok/slot and the demo died with HTTP 400). 32768/12 ≈ 2730/slot.
-- Pre-warm it. Size `-np` to the confirmed PASS-roster headcount.
+- Pre-warm it. Size `-np` to the expected failure tail (the red / no-report count from the PASS roster).
 - **Test the room wifi for AP/client isolation beforehand**; pre-stand a phone hotspot AND a tunnelled
   cloud box (tailscale funnel / cloudflared) as backup — client-isolated wifi is the #1 way this dies.
 

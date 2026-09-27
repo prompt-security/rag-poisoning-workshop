@@ -44,7 +44,7 @@
 | Risk | Trigger | Blast radius | Instructor move |
 |---|---|---|---|
 | Inference latency | cold start / slow laptop | 16–25 s cold-start "hang", room stalls | temp 0, max_tokens 128, warm up with preflight, teach while it generates; "slow is not hung — don't re-run mid-batch" |
-| Model won't comply | too-small/too-aligned model | some laptops' L1 visibly flops | reframe AS the lesson (model-dependence ≠ control); project instructor's canonical result |
+| Model won't comply | too-small/too-aligned model | some laptops' L1 visibly flops | reframe AS the lesson (model-dependence ≠ control); project the recorded run (slide 19) as canonical |
 | Wifi client-isolation | guest AP isolates clients | only an optional shared box (local endpoint traffic never crosses the AP) | if a facilitator adds one: phone hotspot / tunnelled cloud box (tested beforehand); pre-recorded captures |
 | Many laptops red | many local setups fail | crowded pairs, thin iteration in Beat C | 24h-ahead PASS roster to catch them early; pair 2-to-1 with green neighbours; recorded run (slide 19); escalating-hint cards |
 | Install fails in-room | someone did nothing / corporate-locked | one person stuck | 8-min gate; pair 2-to-1 with a green neighbour + recorded run (slide 19); catch up in Lab 2 |
@@ -59,8 +59,8 @@
   mandatory (see 02, "Scale note").
 - **If laptops are locked-down corporate builds**, BYO stops being realistic: without a shared box
   most of that room pairs up or watches the recorded run, so that is the case for a facilitator to add
-  one as the primary path. On open personal/dev machines the reverse holds, and a USB-stick fallback
-  is a small-tail contingency rather than the default.
+  one as the primary path. On open personal/dev machines the reverse holds; a USB-stick fallback
+  (prebuilt venv + cache) only helps alongside a shared box, since it carries no model.
 
 ## Deck and asset decisions
 - **The workshop deck stands alone.** It is the "lab"; a research-talk deck covering the same
