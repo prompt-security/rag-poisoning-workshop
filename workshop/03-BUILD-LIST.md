@@ -26,10 +26,12 @@ Also (small, config-level, from the install recon):
   (RAG_Poisoning_POC#8).
 - Default `TOP_K_RETRIEVAL=4` in `.env.example` (deterministic poison retrieval — see the "Top-k"
   slide). **DONE** (RAG_Poisoning_POC#8).
-- `requirements.workshop.txt` = `requirements.txt` minus `llama-cpp-python` (source build) plus
-  `pip-system-certs`, which makes pip trust the OS certificate store — needed on any machine behind a
-  TLS-inspecting corporate proxy. `./setup.sh --no-local` selects it automatically. **DONE**
-  (RAG_Poisoning_POC#10).
+- ~~`requirements.workshop.txt` = `requirements.txt` minus `llama-cpp-python` plus `pip-system-certs`
+  (RAG_Poisoning_POC#10).~~ **SUPERSEDED** — it never landed on `main`; the install is now `uv` +
+  `pyproject.toml` + `uv.lock`. `llama-cpp-python` (source build) became the optional `local` extra in
+  RAG_Poisoning_POC#13, which `./setup.sh --no-local` skips — no compiler needed. No
+  `pip-system-certs`: behind a TLS-inspecting corporate proxy, use
+  `UV_SYSTEM_CERTS=1 ./setup.sh --no-local`.
 
 *(Optional, ~20 lines, not required):* a throwaway `grep`/regex one-liner for the "beat a naive filter"
 bonus in Lab 2. It's a teaching prop, not a tool to build — the deck already frames it as `grep`. Still
@@ -37,10 +39,15 @@ not built — no need to; participants write the payload, `grep` is illustrative
 
 ## B. Instructor infrastructure
 
-- **Shared fallback llama-server** sized to the *failure tail*, not the whole room: `-c 32768 -np 12 -cb
-  -n 256 --host 0.0.0.0 --port 8080 -a local-model --jinja`. `-c` must be ≥ 2048×np. Pre-warm it. For a
-  large tail, run 2–3 boxes split by `.env` IP. (See 02 §"Scale note".)
-- **Test the room network** for AP/client isolation; pre-stand a phone hotspot / tunnelled cloud box.
+Default run: **no shared endpoint** — red laptops pair with a green neighbour and follow the recorded
+run (slide 19).
+
+- *(Optional — not used by default.)* **Shared fallback llama-server**, only if a facilitator adds
+  one, sized to the *failure tail*, not the whole room: `-c 32768 -np 12 -cb -n 256 --host 0.0.0.0
+  --port 8080 -a local-model --jinja`. `-c` must be ≥ 2048×np. Pre-warm it. For a large tail, run
+  2–3 boxes split by `.env` IP. (See 02 §"Shared-endpoint plan".)
+- *(Only with a shared box.)* **Test the room network** for AP/client isolation; pre-stand a phone
+  hotspot / tunnelled cloud box.
 - **Pre-pull models** on the instructor box: a participant-grade `phi4-mini` and one larger showpiece (Phi-4 14B).
 - Rehearse the full run end-to-end on `main` before the session.
 
@@ -55,8 +62,9 @@ not built — no need to; participants write the payload, `grep` is illustrative
 ---
 
 ### Suggested order
-1. ~~The code edits + config tweaks + `requirements.workshop.txt`, verified against a real 3B endpoint.~~
-   Done — see the Status column above.
+1. ~~The code edits + config tweaks + the compiler-free `--no-local` install, verified against a real
+   3B endpoint.~~ Done — see the Status column above (`requirements.workshop.txt` was superseded by
+   the uv `local` extra, RAG_Poisoning_POC#13).
 2. ~~Confirm the deck's lab commands match the final flag names.~~ Done (rag-poisoning-workshop#10
    fixed `--infer openai` → `--infer openai-compat`, the only mismatch found).
-3. Instructor infra + a full rehearsal shortly before you run the session.
+3. Instructor infra (no shared box by default) + a full rehearsal shortly before you run the session.
