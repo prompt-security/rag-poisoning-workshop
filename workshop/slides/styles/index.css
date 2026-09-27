@@ -68,7 +68,8 @@
 .card-deep, .card-deep .small, .card-deep .tiny { color: #f2ecff; }
 .card-deep strong { color: #fff; }
 .card-deep .muted { color: #c9b8ff; }
-.card-deep code { background: rgba(255,255,255,.14); color: #e7d9ff; }
+/* scoped under .slidev-layout to outrank Slidev's own `.slidev-layout :not(pre) > code` */
+.slidev-layout .card-deep code { background: rgba(255,255,255,.14); color: #e7d9ff; }
 
 /* pill/tag */
 .tag {

@@ -2,7 +2,7 @@
 
 # The attack is retrieval-gated
 
-<div class="small muted mb-1">Recorded run — the poisoned corpus, five queries:</div>
+<div class="small muted mb-1">Recorded run at <strong>top-k = 3</strong> (the repo's old default) — the poisoned corpus, five queries:</div>
 
 <div class="term text-left">
 Q1 load balancing &nbsp; &nbsp; → sources: <span class="c-poison">distributed_systems_advanced.md</span>, cloud… &nbsp;<span class="c-poison">🏴‍☠️ POISONED</span>
@@ -11,6 +11,7 @@ Q1 load balancing &nbsp; &nbsp; → sources: <span class="c-poison">distributed_
 <br/>Q4 consistent hashing → sources: <span class="c-poison">distributed_systems_advanced.md</span>, database… &nbsp;<span class="c-poison">🏴‍☠️ POISONED</span>
 <br/>Q5 microservices &nbsp; &nbsp; → sources: <span class="c-poison">distributed_systems_advanced.md</span>, cloud… &nbsp;<span class="c-poison">🏴‍☠️ POISONED</span>
 </div>
+<div class="tiny muted mt-1">At today's default k = 4 the poison is always retrieved, so expect 5/5.</div>
 
 <div class="cols-2 mt-4">
 <div v-click class="card">
@@ -26,4 +27,5 @@ Q1 load balancing &nbsp; &nbsp; → sources: <span class="c-poison">distributed_
 <!--
 This is the most honest and most useful slide in the deck. The 80% is not a benchmark; it's an artifact
 of top-k ranking. Teach it as: the attack surface includes retrieval ranking, and the defense starts there.
+The recording was k=3; at the default k=4 the room sees 5/5. TOP_K_RETRIEVAL=3 reproduces Q3's miss.
 -->

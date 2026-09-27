@@ -14,5 +14,5 @@
 </div>
 
 <div v-click class="mt-6 muted text-center">
-Either way: project the instructor's canonical 3B / showpiece result as the reference. The lesson survives a flaky model.
+Either way: the recorded run (slide 19) is the reference. The lesson survives a flaky model.
 </div>
