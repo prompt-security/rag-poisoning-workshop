@@ -55,9 +55,8 @@ query eats the 16–25 s cold-start. No shared endpoint, no shared fallback.
   (venv active: `source .venv/bin/activate`). Say it once: **base URL = BARE ORIGIN — no `/v1`, no
   trailing slash.**
 - **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` applies the
-  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10 — for `No runnable inference
-  path`, run the `--provider <engine>` check from D12, not the line's own suggestion) and re-runs;
-  still red → pair with a
+  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10; for `No runnable inference
+  path`, the `--provider <engine>` check it lists — D12) and re-runs; still red → pair with a
   green neighbor and follow the recorded run (slide 19).
 - **Participants:** run `python3 src/preflight.py --one-line` inside the venv → confirm `PREFLIGHT
   PASS` (this warms your endpoint).
