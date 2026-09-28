@@ -25,13 +25,15 @@
 - **Temp 0, max_tokens 128, warm 3B** — over the shipped 10-query temp-0.7 batch (10+ min of spinner,
   non-reproducible). Shipped as defaults in `llm_factory.py`/`.env.example`. Single-query-per-attempt
   and streaming were considered but not built — the deck's lab still runs the full clean+poisoned
-  batch in one invocation; the reproducible defaults alone bring it to ~2–3 s/query local.
+  batch in one invocation; the reproducible defaults alone bring it to ~0.3–2 s/query local (measured on Apple Silicon with Phi-4-mini).
 - **Retrieval-gating taught via the repo's OWN recorded output slide**, live retrieval-race demoted to
   an optional fast-finisher stretch — the recorded miss is guaranteed; a live miss at top-k=4 is not.
 - **"Write your own payload → beat the naive scanner" is the core of the lab, bounded honestly** — the
   single highest credibility-building exercise; must be bounded so no one thinks that regex ships.
-- **BYO endpoint + a sized shared llama-server fallback** — over one shared endpoint for all (latency
-  cliff) or pure BYO (failed laptops unrecoverable).
+- **BYO local endpoint + neighbour pairing + the recorded run (slide 19)** — over one shared endpoint
+  for all (latency cliff) or a sized shared llama-server fallback (no box for this run, and it dies on
+  client-isolated wifi). A red laptop isn't lost: it pairs 2-to-1 and catches up in the self-paced
+  Lab 2. A facilitator may add a shared box as an optional extra (02, "Shared-endpoint plan").
 - **Two levels done fully by everyone** (reproduce; write-your-own + beat-scanner) + optional stretch —
   over four half-absorbed levels.
 - **Teach on the patched PoC, foreground its real defects as findings** — over silently patching
@@ -41,22 +43,24 @@
 ## Risk register (top items)
 | Risk | Trigger | Blast radius | Instructor move |
 |---|---|---|---|
-| Inference latency | shared endpoint / cold start | 15–30 s "hangs", room stalls | single query, temp 0, max_tokens 128, warm-up curl, teach while it generates; "slow is queueing" |
-| Model won't comply | too-small/too-aligned model | some laptops' L1 visibly flops | reframe AS the lesson (model-dependence ≠ control); project instructor's canonical result |
-| Wifi client-isolation | guest AP isolates clients | shared-endpoint fallback dies | phone hotspot / tunnelled cloud box (tested beforehand); pre-recorded captures |
-| Mass fallback saturates shared box | many local setups fail | thin iteration in Beat C | box sized `-np 12`; stagger halves; "do not re-run"; escalating-hint cards |
-| Install fails in-room | someone did nothing / corporate-locked | one person stuck | 8-min gate + shared IP; USB sticks; pair 2-to-1 |
+| Inference latency | cold start / slow laptop | 16–25 s cold-start "hang", room stalls | temp 0, max_tokens 128, warm up with preflight, teach while it generates; "slow is not hung — don't re-run mid-batch" |
+| Model won't comply | too-small/too-aligned model | some laptops' L1 visibly flops | reframe AS the lesson (model-dependence ≠ control); project the recorded run (slide 19) as canonical |
+| Wifi client-isolation | guest AP isolates clients | only an optional shared box (local endpoint traffic never crosses the AP) | if a facilitator adds one: phone hotspot / tunnelled cloud box (tested beforehand); pre-recorded captures |
+| Many laptops red | many local setups fail | crowded pairs, thin iteration in Beat C | 24h-ahead PASS roster to catch them early; pair 2-to-1 with green neighbours; recorded run (slide 19); escalating-hint cards |
+| Install fails in-room | someone did nothing / corporate-locked | one person stuck | 8-min gate; pair 2-to-1 with a green neighbour + recorded run (slide 19); catch up in Lab 2 |
 | Front-loaded talk loses room | 10-min teach block | disengagement before L1 | hard timer; the flat-string diagram is the only non-negotiable slide |
 | Citation soup / a challenge | OWASP/ATLAS IDs, "first demonstration" claim | credibility dip | two anchors (Slack AI + LLM01/LLM09); pre-loaded honest reframe |
 
 ## Scaling to a large room
-- **At 100+ participants, BYO local endpoint is the PRIMARY path** and any shared endpoint is only a
-  failure-tail absorber. A per-person triage gate does not survive that headcount — replace it with a
-  self-service preflight card, roaming TAs, neighbour-pairing, and a projected green/red counter.
-  The 24h-ahead PREFLIGHT PASS roster becomes mandatory (see 02, "Scale note").
-- **If laptops are locked-down corporate builds**, BYO stops being realistic and the shared endpoint
-  moves back to the primary path. On open personal/dev machines the reverse holds, and a USB-stick
-  fallback is a small-tail contingency rather than the default.
+- **At 100+ participants, BYO local endpoint is the PRIMARY path**; the default run has no shared
+  endpoint, and one a facilitator adds is only a failure-tail absorber. A per-person triage gate does
+  not survive that headcount — replace it with a self-service preflight card, roaming TAs,
+  neighbour-pairing, and a projected green/red counter. The 24h-ahead PREFLIGHT PASS roster becomes
+  mandatory (see 02, "Scale note").
+- **If laptops are locked-down corporate builds**, BYO stops being realistic: without a shared box
+  most of that room pairs up or watches the recorded run, so that is the case for a facilitator to add
+  one as the primary path. On open personal/dev machines the reverse holds; a USB-stick fallback
+  (prebuilt venv + cache) only helps alongside a shared box, since it carries no model.
 
 ## Deck and asset decisions
 - **The workshop deck stands alone.** It is the "lab"; a research-talk deck covering the same
@@ -67,10 +71,11 @@
   orange `#ffa33f`, Quicksand.
 
 ## Check these before you run it
-1. **Room wifi** — models are pre-pulled at home, so in-room load is just the shared-box tail. Still
-   test the network, and specifically test for AP/client isolation, which is the single most common
-   way the shared-endpoint fallback dies.
+1. **Room wifi** — models are pre-pulled at home and every endpoint is local, so the default run
+   puts almost no load on room wifi. Test for AP/client isolation only if a facilitator adds a shared
+   box — it's the single most common way a shared endpoint dies.
 2. **Audience mix** — hands-on engineers vs architects vs leadership tunes how much of the 14-minute
    mitigation segment goes to business impact vs technical control detail.
-3. **Shared endpoint ownership** — decide who owns and sizes the failure-tail box before you commit
-   to offering one.
+3. **Red-laptop plan** — the default has no shared endpoint: red laptops pair with a green neighbour
+   and follow the recorded run (slide 19). Check the PASS roster for how many pairs you'll need. A
+   shared box is an optional extra — only if someone owns and sizes it (02, "Shared-endpoint plan").

@@ -1,15 +1,17 @@
 # The Poisoned Pill — 90-Minute Workshop Run-of-Show
 
 **Format:** instructor-led, hands-on. Every participant personally runs the RAG-poisoning
-attack against an endpoint they control (or a shared fallback).
+attack against a local endpoint they control. There is no shared endpoint: a laptop that stays red
+pairs with a green neighbour and follows the recorded run (slide 19).
 **Spine:** *Threat-model first* — the load-bearing idea is taught keyboards-down before anyone
 runs code, then a single self-paced lab lets participants reproduce, weaponize, and defeat a
 naive defense with their own hands.
 
 **Design principle #1 — latency is the enemy.** The original recorded run took 26–90 s *per query*
 × 10 queries. The workshop harness runs at **temperature 0, max_tokens 128** for fast, reproducible
-results (~2–3 s/query local). There is no single-query or streaming mode — the script still runs the
-whole clean-then-poisoned batch in one invocation — so always teach *while* it generates: narrate the
+results (~0.3–2 s/query, measured locally on Apple Silicon with Phi-4-mini). There is no single-query
+or streaming mode — the script still runs the whole clean-then-poisoned batch in one invocation — so
+always teach *while* it generates: narrate the
 mechanism on the projector, or run with `--show-prompt` and point at the assembled prompt as it prints.
 Nobody watches a silent spinner.
 
@@ -45,20 +47,25 @@ downloads, and the embedding-model cache are PRE-FLIGHT (see `02-PREFLIGHT-AND-E
 ---
 
 ### 0–8 · SETUP · Prove your endpoint before we teach
-**Objective:** get every laptop green (or routed to the shared endpoint) BEFORE teaching, so
+**Objective:** get every laptop green (or paired with a green neighbour) BEFORE teaching, so
 broken setups surface at minute 0, not minute 45. Fire a warm-up query so nobody's first real
-query eats the 16–25 s cold-start.
+query eats the 16–25 s cold-start. No shared endpoint, no shared fallback.
 - **Instructor:** project the hook slide (pirate answer → "now imagine that instruction said
-  *approve the wire transfer*") + the one self-check command. Write shared-endpoint IP on the
-  board: **BARE ORIGIN — no `/v1`, no trailing slash.** Confirm shared llama-server is up and warm.
-- **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` switches ONE
-  line in `.env` to the shared endpoint and re-runs; still red → pair with a green neighbor.
-- **Participants:** run `python3 src/preflight.py --one-line` → confirm `PREFLIGHT PASS` (this warms
-  your endpoint).
-- **Hard cap 8:00.** Don't start teaching until ~80% green or routed.
-- **Risk:** guest wifi client-isolation kills the shared endpoint for everyone.
-  **Fallback:** phone hotspot or pre-stood tunnelled cloud box (tested from the room beforehand);
-  pre-baked `rag_poisoning_demo.out` is the read-only last resort so nobody is empty-handed.
+  *approve the wire transfer*") + the one self-check command, `python3 src/preflight.py --one-line`
+  (venv active: `source .venv/bin/activate`). Say it once: **base URL = BARE ORIGIN — no `/v1`, no
+  trailing slash.**
+- **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` applies the
+  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10 — for `No runnable inference
+  path`, run the `--provider <engine>` check from D12, not the line's own suggestion) and re-runs;
+  still red → pair with a
+  green neighbor and follow the recorded run (slide 19).
+- **Participants:** run `python3 src/preflight.py --one-line` inside the venv → confirm `PREFLIGHT
+  PASS` (this warms your endpoint).
+- **Hard cap 8:00.** Don't start teaching until ~80% green or paired.
+- **Risk:** a laptop can't get green in 8 min (endpoint not serving, wrong base URL, setup skipped).
+  **Fallback:** pair it with a green neighbour and follow the recorded run (slide 19); it keeps fixing
+  during the keyboards-down sections and catches up in Lab 2, which is self-paced. Pre-baked
+  `src/rag_poisoning_demo.out` is the read-only text capture so nobody is empty-handed.
 
 ### 8–18 · TEACH · You still run RAG · one flat string, no privilege bit
 **Objective (first ~2 min) — kill the "RAG is a 2023 problem" objection before it forms.** Most of the room
@@ -93,8 +100,10 @@ their planted prediction — a confirmed prediction, not a passive reveal. Warms
   prediction.
 - **Risk:** a too-small/too-aligned model doesn't comply, or Ollama silently truncates on small
   `n_ctx`. **Fallback:** reframe non-compliance AS the lesson ("attack success is model-dependent —
-  an argument against trusting any one model's resistance as a control"); project the instructor's
-  result as canonical; truncated laptops → shared endpoint; total network death → pre-recorded capture.
+  an argument against trusting any one model's resistance as a control"); project the recorded run
+  (slide 19) as canonical; truncated laptops → fix the Ollama context (`OLLAMA_CONTEXT_LENGTH=4096` on
+  `ollama serve`, check `ollama ps`) or pair with a green neighbour; total network death →
+  pre-recorded capture.
 
 ### 26–38 · TEACH · Threat model
 **Objective:** turn the mechanism they just felt into a threat model they can carry to their org.
@@ -119,8 +128,9 @@ their planted prediction — a confirmed prediction, not a passive reveal. Warms
 ### 38–70 · HANDS-ON · The lab (self-paced)
 **Objective:** one continuous flow. Self-pacing absorbs latency heterogeneity — a slow endpoint
 just means fewer iterations, not a room-wide desync.
-- **Set pace out loud first:** single queries only; ~2–3 s local / 15–30 s shared; "slow is
-  queueing — do NOT re-run and hammer the shared box."
+- **Set pace out loud first:** one run at a time; ~0.3–2 s/query on a warm local endpoint, ~22 s for
+  the whole 10-query run (measured: Apple Silicon, llama-server + Phi-4-mini); slower laptops take
+  longer. "Slow is not hung — do NOT Ctrl-C and re-run mid-batch; it just starts over."
 - **Beat B (~14 min):** everyone writes their OWN benign instruction (persona/format change) into a
   file and re-runs with `--payload-file my_poison.txt`, confirming it fires. Harvest 2–3 divergent
   results aloud.
@@ -134,11 +144,11 @@ just means fewer iterations, not a room-wide desync.
   unrelated queries at once (the "semantic width" lever from P4) and see which questions start
   retrieving it. Retrieval engineering, and the `Sources:` line gives feedback without a second
   inference pass.
-- **Risk:** (1) weak/over-aligned models → muddy success spread; (2) mass fallback saturates the
-  shared box. **Fallback:** (1) reframe the spread AS the lesson; route below-par laptops to the
-  known-good shared 3B; (2) shared box is sized (`-np 12 -c 32768`, measured ~3.5 min for the room);
-  stagger halves; hand stuck participants a 3-step escalating-hint card. Beat C collapses LAST to
-  instructor-led; Beat B is never cut.
+- **Risk:** (1) weak/over-aligned models → muddy success spread; (2) red laptops left with nothing
+  to iterate on. **Fallback:** (1) reframe the spread AS the lesson; pair below-par laptops with a
+  green neighbour; (2) pair 2-to-1 with a green neighbour, the recorded run (slide 19) as reference;
+  hand stuck participants a 3-step escalating-hint card. Beat C collapses LAST to instructor-led;
+  Beat B is never cut.
 
 ### 70–84 · DISCUSSION · Debrief + honest mitigations
 **Objective:** consolidate into defenses rated by honesty, using what the room just did as evidence
