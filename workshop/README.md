@@ -11,6 +11,7 @@ yourself, read 02 (participant prep) and 00 (the timeline) first.
 | [03-BUILD-LIST.md](03-BUILD-LIST.md) | Everything to build before the deck (code harness, assets, slides, handouts) |
 | [04-DECISIONS-RISKS-OPEN.md](04-DECISIONS-RISKS-OPEN.md) | Learning objectives, design decisions, risk register, pre-run checklist |
 | [05-PARTICIPANT-QA.md](05-PARTICIPANT-QA.md) | Participant Q&A for helpers: setup, endpoints, both labs, the grep check, building your own PoC — verified against POC `main` |
+| [06-HELPER-AGENT-PROMPT.md](06-HELPER-AGENT-PROMPT.md) | The priming prompt helpers paste into their coding agent: reproduces the participant setup, loads 05 + the slides, answers questions. The canonical copy — agents check their pasted copy's version against it |
 | [slides/](slides/README.md) | The Slidev deck (`slides.md`) + brand theme — run with `npm run dev` |
 
 **How it was built:** the timings and failure modes in 02 and 04 come from actually running the
