@@ -7,8 +7,9 @@ room first, and for participants reading along.
 
 > **Verified where marked.** Entries whose source line says *verified* were run on fresh clones of
 > `RAG_Poisoning_POC` `main` (macOS 26 arm64, `uv` 0.12, llama-server + Phi-4-mini Q4_K_M): `f103694`
-> on 2026-09-27, and the setup, preflight and `--infer` entries again on `0e3a07e` on 2026-09-28.
-> Quoted output is real output from those runs. Everything else — Ollama, LM
+> on 2026-09-27, and the setup, preflight and `--infer` entries again on `0e3a07e` on 2026-09-28. The
+> base-URL lines in C2, D4 and D12 were verified on the POC preflight URL-shape fix
+> ([POC PR #22](https://github.com/prompt-security/RAG_Poisoning_POC/pull/22), on top of `0e3a07e`). Quoted output is real output from those runs. Everything else — Ollama, LM
 > Studio, Windows/WSL, install one-liners — comes from the cited source and says *not run here*. If your
 > clone is older, start with [A1](#a1-which-repo-and-which-commit-should-i-be-on).
 
@@ -27,6 +28,7 @@ with a green neighbour and follow the recorded run (slide 19) — see [K2](#k2-i
 |---|---|
 | `PREFLIGHT FAIL: Project dependencies -- uv sync; source .venv/bin/activate` right after setup worked | [B6](#b6-setup-succeeded-but-preflight-says-project-dependencies-fail) |
 | `PREFLIGHT FAIL: No runnable inference path -- … --provider llama-server; …` | [D12](#d12-preflight-says-no-runnable-inference-path) |
+| `PREFLIGHT FAIL: OPENAI_COMPAT_BASE_URL is not a bare origin -- …` (or `OLLAMA_BASE_URL`, or `… is unparseable`) | [C2](#c2-what-exactly-is-a-bare-origin) |
 | cmake / Xcode / `llama-cpp-python` build error during install | [B2](#b2-the-install-fails-building-llama-cpp-python-cmake--xcode--compiler-errors) |
 | `doesn't have a source distribution or wheel for the current platform` (Intel Mac, older macOS) | [B9](#b9-im-on-an-intel-mac-or-macos-13-or-older) |
 | `❌ No endpoint selected` (or `No module named 'llama_cpp'` on older clones) | [E2](#e2-the-demo-says-no-endpoint-selected--no-module-named-llama_cpp) |
@@ -53,7 +55,8 @@ git log -1 --oneline        # tell a helper this line if you ask for help
 ```
 Cloned before **2026-09-28 09:04 UTC**? Pull too: that update (POC #20) made setup create `.env`,
 tolerate a trailing slash, and print clearer preflight and `--infer` messages. C1, C2, D12 and E2 note
-what older clones do instead.
+what older clones do instead. Whether your clone has the later preflight URL-shape fix (POC PR #22,
+[C2](#c2-what-exactly-is-a-bare-origin)): `grep -q one_line_failure src/preflight.py && echo has-fix || echo older`.
 <sub>Source: [02](02-PREFLIGHT-AND-ENDPOINTS.md) step 1; POC PR #13 (llama-cpp-python moved to the optional `local` extra and `uv.lock` updated to match, merged 2026-09-22 16:13 UTC). PR #15 (transformers 5.x lock bump) merged earlier the same day; POC PR #20 (setup fixes) merged 2026-09-28 09:04 UTC.</sub>
 
 ### A2. The workshop docs mention `requirements.workshop.txt` / `requirements.txt`. I can't find them.
@@ -171,14 +174,24 @@ python3 src/preflight.py --write-env llama-server   # or: --write-env ollama --m
 <sub>Source: POC `setup.sh`, `src/config.py`, `src/preflight.py` `do_write_env`; creation verified on `0e3a07e`.</sub>
 
 ### C2. What exactly is a "bare origin"?
-`scheme://host:port` and nothing else — `http://localhost:8080`. The code appends `/v1` itself, so
-`http://localhost:8080/v1` becomes `/v1/v1` and 404s (verified). Preflight flags that case:
+`scheme://host:port` and nothing else — `http://localhost:8080` (Ollama: `http://localhost:11434`). The
+code appends `/v1` itself, so `http://localhost:8080/v1` becomes `/v1/v1` and 404s (verified). When
+that is why your endpoint check fails, `--one-line` names the variable and the line to put in `.env`:
 ```
-[WARN] OPENAI_COMPAT_BASE_URL is not a bare origin
+PREFLIGHT FAIL: OPENAI_COMPAT_BASE_URL is not a bare origin -- OPENAI_COMPAT_BASE_URL=http://localhost:8080
+PREFLIGHT FAIL: OLLAMA_BASE_URL is not a bare origin -- OLLAMA_BASE_URL=http://localhost:11434
 ```
+`… is unparseable -- OLLAMA_BASE_URL=http://localhost:11434` means the value has no `http://`, no host, or a bad port (e.g.
+`localhost:11434`): use the suggested line too. The full report (`python3 src/preflight.py`) shows the
+same problem as a `[WARN]` with the reason. Clones older than the POC URL-shape fix don't name it on the
+one line: they print `No runnable inference path` or `Completion returned HTTP 404`
+([D12](#d12-preflight-says-no-runnable-inference-path)) or, for Ollama, `OLLAMA_MODEL not pulled`
+([D4](#d4-ollama-ollama_model-not-pulled)) — fix the URL anyway. On those clones a URL without `http://`
+can even show `llama-server not running` while it runs, or pass preflight and then fail the demo with
+`Connection error`.
 A trailing slash is fine: the demo strips it (`http://localhost:8080/` ran 5/5, verified). Older clones
 turn it into `//v1` while preflight still passes — remove the slash by hand there.
-<sub>Source: POC `src/config.py`, `src/llm_factory.py` (`f"{base}/v1"`), `src/preflight.py` `check_base_url_shape`; slide 4.</sub>
+<sub>Source: POC `src/config.py`, `src/llm_factory.py` (`f"{base}/v1"`), `src/preflight.py` `check_base_url_shape`, `one_line_failure`; slide 4. One-line FAILs verified on the URL-shape fix (POC PR #22): the `OPENAI_COMPAT_BASE_URL` line with llama-server up and with it stopped, the `OLLAMA_BASE_URL` and no-`http://` lines with nothing listening (no Ollama daemon was run).</sub>
 
 ### C3. Which `.env` variables matter for my endpoint?
 
@@ -251,7 +264,13 @@ is fine. Trust `ollama ps` and `python3 src/preflight.py --provider ollama --dee
 ```bash
 ollama pull phi4-mini
 ```
-<sub>Source: `src/preflight.py` `check_ollama`; `.env.example` comment. Not run here.</sub>
+Already pulled (`ollama list` shows it) and still told to pull? Check `OLLAMA_BASE_URL` for a path: with
+`http://localhost:11434/v1` preflight asks for `/v1/api/tags`, gets a 404 and reports no models, so a
+pull changes nothing. Current preflight's `--one-line` names the URL instead —
+`PREFLIGHT FAIL: OLLAMA_BASE_URL is not a bare origin -- OLLAMA_BASE_URL=http://localhost:11434` — put
+that line in `.env` ([C2](#c2-what-exactly-is-a-bare-origin)). Clones older than the POC URL-shape fix
+print `OLLAMA_MODEL not pulled -- ollama pull phi4-mini` for it.
+<sub>Source: `src/preflight.py` `check_ollama`, `check_base_url_shape`; `.env.example` comment. The `OLLAMA_BASE_URL` line verified on the URL-shape fix (POC PR #22) with no daemon running; the pulled-model case was checked against a stub standing in for Ollama. No real Ollama daemon was run here.</sub>
 
 ### D5. LM Studio: 404 / `OPENAI_COMPAT_MODEL is not loaded`
 LM Studio *does* check the model name, its server is **off** by default, and models load lazily (25 s+
@@ -305,13 +324,16 @@ and endpoint users can ignore them. Two exceptions:
 ### D10. Preflight FAIL lines and their fixes
 Most rows below are FAIL only when you pass an explicit `--provider`. A plain `python3 src/preflight.py`
 or `--one-line` survey shows them as INFO/WARN, and its only endpoint FAIL is `No runnable inference
-path` ([D12](#d12-preflight-says-no-runnable-inference-path)).
+path` ([D12](#d12-preflight-says-no-runnable-inference-path)). One exception on the one line: when an
+endpoint check fails and a base URL has a path or no `http://`, `--one-line` prints that WARN instead —
+and it does the same instead of a PASS when the engine in its `run:` hint would read a malformed URL.
 
 | Title | Meaning | Fix |
 |---|---|---|
 | `Project dependencies` | venv not active or setup not run | `source .venv/bin/activate` (or `./setup.sh --no-local`) |
 | `Embedding model not cached` | MiniLM not in `./models/embedding` | `./setup.sh --no-local`, run from repo root |
 | `No runnable inference path` | no endpoint gave a usable completion | [D12](#d12-preflight-says-no-runnable-inference-path) |
+| `OPENAI_COMPAT_BASE_URL is not a bare origin` / `OLLAMA_BASE_URL is not a bare origin` / `… is unparseable` (WARN in the full report) | base URL has a path (`/v1`) or no `http://` | put the line after `--` in `.env` ([C2](#c2-what-exactly-is-a-bare-origin)) |
 | `llama-server not installed` / `ollama not installed` / `LM Studio CLI not installed` | engine missing | [D13](#d13-how-do-i-install-an-inference-engine) |
 | `llama-server not running` / `ollama daemon not reachable` / `LM Studio server not running` | installed, not started | start it ([D1](#d1-which-endpoint-should-i-run), [D3](#d3-ollama-the-demo-quietly-stops-working--the-poison-never-seems-to-reach-the-model), [D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)) |
 | `OLLAMA_MODEL not pulled` | tag missing | `ollama pull phi4-mini` |
@@ -323,7 +345,7 @@ path` ([D12](#d12-preflight-says-no-runnable-inference-path)).
 
 WARNs don't block. `Possible SILENT truncation` (from `--deep`) means raise the context ([D3](#d3-ollama-the-demo-quietly-stops-working--the-poison-never-seems-to-reach-the-model)).
 `Python 3.13+` (WARN) and `OPENAI_COMPAT_BASE_URL is not a bare origin` (WARN, [C2](#c2-what-exactly-is-a-bare-origin)) mean you're outside the venv or have a path in the URL — for the Python one just activate the venv (its `uv venv` suggestion fails once `.venv` exists).
-Other titles (`Completion response malformed`, `Model unsuitable for the demo`, `OLLAMA_CONTEXT_LENGTH is only set in .env`, `OPENAI_COMPAT_BASE_URL is unparseable`, `Local GGUF failed digest check`, `Endpoint is slow`, `llama-server context tight`) print their own fix under the title in the full report (`python3 src/preflight.py`).
+Other titles (`Completion response malformed`, `Model unsuitable for the demo`, `OLLAMA_CONTEXT_LENGTH is only set in .env`, `Local GGUF failed digest check`, `Endpoint is slow`, `llama-server context tight`) print their own fix under the title in the full report (`python3 src/preflight.py`).
 <sub>Source: `src/preflight.py` Result titles.</sub>
 
 ### D11. `curl -s $OLLAMA_BASE_URL/v1/models` prints nothing
@@ -351,11 +373,14 @@ and prints the exact fix — with llama-server stopped, `--provider llama-server
 Older clones print `--install ollama --run; --download phi-4-mini` here instead — don't follow that on a
 `--no-local` laptop (it installs Ollama and fetches a 2.3 GB model only the in-process path uses); run
 the `--provider` check.
-**A `/v1` in `OPENAI_COMPAT_BASE_URL` lands here too.** `--one-line` prints only the first FAIL and drops
-the `# checks …` comments that would show the URL, so the cause is invisible on that line. The full report
-(`python3 src/preflight.py --provider llama-server`, no `--one-line`) shows
-`[WARN] OPENAI_COMPAT_BASE_URL is not a bare origin` with the fix ([C2](#c2-what-exactly-is-a-bare-origin)).
-<sub>Source: `src/preflight.py` `check_viable_path`, `report_one_line`, `check_base_url_shape`; verified on `0e3a07e` with the endpoint down; the `/v1` case seen in a helper's run on `0e3a07e`.</sub>
+**A `/v1` in a base URL no longer lands here.** `--one-line` names it instead —
+`PREFLIGHT FAIL: OPENAI_COMPAT_BASE_URL is not a bare origin -- OPENAI_COMPAT_BASE_URL=http://localhost:8080`
+(or `OLLAMA_BASE_URL`, or `… is unparseable` for a URL without `http://`); put that line in `.env`
+([C2](#c2-what-exactly-is-a-bare-origin)). Clones older than the POC URL-shape fix still show
+`No runnable inference path` for it (`Completion returned HTTP 404 -- see the full report` with
+`--provider llama-server`); there, the full report (`python3 src/preflight.py --provider llama-server`,
+no `--one-line`) shows `[WARN] OPENAI_COMPAT_BASE_URL is not a bare origin` with the fix.
+<sub>Source: `src/preflight.py` `check_viable_path`, `one_line_failure`, `check_base_url_shape`; verified on `0e3a07e` with the endpoint down; the `/v1` lines verified with llama-server up on the URL-shape fix (POC PR #22) (and with it stopped) and on `0e3a07e` for the older output.</sub>
 
 ### D13. How do I install an inference engine?
 ```bash
@@ -422,6 +447,8 @@ offline mode turns that into a network-sounding error. `cd` back to the repo roo
 ### E4. `openai.NotFoundError: Error code: 404` / `openai.APIConnectionError: Connection error.`
 - **404** → your base URL has a path (usually `/v1`). Use the bare origin ([C2](#c2-what-exactly-is-a-bare-origin)). For LM Studio also check the model id ([D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)); for Ollama, a 404 saying the model isn't found means the tag isn't pulled (`ollama pull phi4-mini`, [D4](#d4-ollama-ollama_model-not-pulled)).
 - **Connection error / `Connection refused`** → nothing is listening at that URL. On Ollama? Use `--infer ollama` — `openai-compat` calls `OPENAI_COMPAT_BASE_URL` (`:8080`), not Ollama's `:11434`. Otherwise start your endpoint and re-run preflight ([D12](#d12-preflight-says-no-runnable-inference-path)).
+  Preflight passed but the demo says `Connection error`? Check `.env` for a URL without `http://`
+  (`localhost:8080`): older clones' `--one-line` doesn't catch it; the full report shows it as a `[WARN]` ([C2](#c2-what-exactly-is-a-bare-origin)).
 <sub>Source: verified with `OPENAI_COMPAT_BASE_URL=http://localhost:8080/v1` and with llama-server stopped.</sub>
 
 ### E5. What should a successful run look like?
