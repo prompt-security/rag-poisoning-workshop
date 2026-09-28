@@ -67,6 +67,8 @@
 .card-deep { background: var(--ps-grad); border: 1px solid #4b2aa0; color: #f2ecff; box-shadow: 0 6px 18px -6px rgba(74,17,201,.4); }
 .card-deep, .card-deep .small, .card-deep .tiny { color: #f2ecff; }
 .card-deep strong { color: #fff; }
+/* headings inside the deep panel go white (the global h2 rule would paint them brand purple on purple) */
+.slidev-layout .card-deep h2 { color: #fff; }
 .card-deep .muted { color: #c9b8ff; }
 /* scoped under .slidev-layout to outrank Slidev's own `.slidev-layout :not(pre) > code` */
 .slidev-layout .card-deep code { background: rgba(255,255,255,.14); color: #e7d9ff; }

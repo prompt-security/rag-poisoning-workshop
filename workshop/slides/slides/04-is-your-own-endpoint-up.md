@@ -1,7 +1,3 @@
----
-layout: center
----
-
 <div class="kicker">Before we teach — 90 seconds</div>
 
 # Is your own endpoint up?

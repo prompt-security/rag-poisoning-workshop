@@ -14,7 +14,7 @@
 
 </div>
 </div>
-<div class="card">
+<div v-click class="card">
 <div class="tag tag-poison mb-2">required</div>
 <div class="text-xl mt-3 text-white">Write-access to <em>one thing</em> that gets indexed.</div>
 <div class="small muted mt-3">That's the entire prerequisite. The blast radius is every future query that retrieves your document.</div>

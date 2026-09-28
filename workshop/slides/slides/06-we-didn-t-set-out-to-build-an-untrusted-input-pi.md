@@ -15,7 +15,7 @@
 </div>
 </div>
 
-<div class="card card-deep">
+<div v-click class="card card-deep">
 
 ## The fix everyone shipped
 <div class="small mt-2">
