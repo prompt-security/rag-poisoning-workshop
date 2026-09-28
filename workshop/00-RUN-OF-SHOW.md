@@ -174,7 +174,7 @@ just means fewer iterations, not a room-wide desync.
 - Absorb overrun; take the best two or three payloads from the room and read them out.
 - **Honest homework caveat:** "The demo you ran is patched. Read the known-quirks section in the
   workshop README and see how the hardcoded `llama3:8b-instruct-q5_0` would 404 you, how the forced
-  `TRANSFORMERS_OFFLINE` flag misleads you, and how a 6-word regex overcounts success — those defects
+  `TRANSFORMERS_OFFLINE` flag misleads you, and how a 6-word regex miscounts success (it misses any non-pirate persona) — those defects
   are themselves the lesson."
 - **Closing line:** *"A document in your RAG corpus is not data the model reads — it is code the
   model may run, and it persists until you evict the embedding."*

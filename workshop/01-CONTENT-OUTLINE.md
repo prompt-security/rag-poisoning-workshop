@@ -131,7 +131,7 @@ model may do without a human. This is incident response, not prompt tuning.
 - **Blog vs repo disagree on the generator model** — blog says Llama 2; repo/code use Phi-3.5-mini.
   Say which you're actually running.
 - **"80% success" = 4 of 5 queries, n=5, single run, temp 0.7, question set stacked toward the
-  poison's own topic.** Not a benchmark. The workshop harness fixes this (temp 0, top-k=4, single query).
+  poison's own topic.** Not a benchmark. The workshop harness fixes this (temp 0, max_tokens 128, top-k=4).
 - **"Success" is a six-word regex** (`arrr|matey|ye|hearty|savvy|nautical`, word-boundary). `\bye\b`
   false-positives on "ye olde"; a model can comply without any keyword (false negative). Show responses,
   don't trust the counter.

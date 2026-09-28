@@ -280,8 +280,9 @@ into HTTP 400. Use `-np 1` on a laptop, or keep `-c ≥ 2048 × np`.
 ### D7. Can I use OpenAI / Azure / Groq / my company's gateway / any API-key endpoint?
 Not as shipped. `--infer openai-compat` sends a placeholder key (`dummy-key`), so any endpoint that
 needs a real key will reject it. The only keyed provider is `--infer deepseek` (key in `.keys`). The
-workshop is scoped to a model **you run yourself**. A hosted endpoint after the session means adding
-auth in `src/llm_factory.py` *and* `src/preflight.py` — not a lab step.
+workshop is scoped to a model **you run yourself**. (`.keys.example` has a commented `OPENAI_API_KEY`
+line, but nothing reads it.) A hosted endpoint after the session means adding auth in
+`src/llm_factory.py` *and* `src/preflight.py` — not a lab step.
 <sub>Source: POC `src/llm_factory.py` `_create_openai_compat_llm` docstring; workshop [README](../README.md) scope note.</sub>
 
 ### D8. What should `preflight --one-line` print when I'm ready?
@@ -321,7 +322,8 @@ path` ([D12](#d12-preflight-says-no-runnable-inference-path)).
 | `Python 3.x` | FAIL below 3.9 | activate the venv (it has 3.11) |
 
 WARNs don't block. `Possible SILENT truncation` (from `--deep`) means raise the context ([D3](#d3-ollama-the-demo-quietly-stops-working--the-poison-never-seems-to-reach-the-model)).
-`Python 3.13+` (WARN) and `OPENAI_COMPAT_BASE_URL is not a bare origin` (WARN, [C2](#c2-what-exactly-is-a-bare-origin)) mean you're outside the venv or have a path in the URL.
+`Python 3.13+` (WARN) and `OPENAI_COMPAT_BASE_URL is not a bare origin` (WARN, [C2](#c2-what-exactly-is-a-bare-origin)) mean you're outside the venv or have a path in the URL — for the Python one just activate the venv (its `uv venv` suggestion fails once `.venv` exists).
+Other titles (`Completion response malformed`, `Model unsuitable for the demo`, `OLLAMA_CONTEXT_LENGTH is only set in .env`, `OPENAI_COMPAT_BASE_URL is unparseable`, `Local GGUF failed digest check`, `Endpoint is slow`, `llama-server context tight`) print their own fix under the title in the full report (`python3 src/preflight.py`).
 <sub>Source: `src/preflight.py` Result titles.</sub>
 
 ### D11. `curl -s $OLLAMA_BASE_URL/v1/models` prints nothing
@@ -343,6 +345,9 @@ PREFLIGHT FAIL: No runnable inference path -- python3 src/preflight.py --provide
 Run the one for **your** engine. It probes the URL in your `.env` ([C3](#c3-which-env-variables-matter-for-my-endpoint))
 and prints the exact fix — with llama-server stopped, `--provider llama-server --one-line` printed
 `PREFLIGHT FAIL: llama-server not running -- llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np 1 -cb --host 127.0.0.1 --port 8080 -a local-model --jinja`.
+**LM Studio:** point `.env` at it first (`python3 src/preflight.py --write-env lmstudio`, then set
+`OPENAI_COMPAT_MODEL` to the loaded id — [D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)).
+`--provider lmstudio` probes whatever `OPENAI_COMPAT_BASE_URL` says, and the template says `:8080`.
 Older clones print `--install ollama --run; --download phi-4-mini` here instead — don't follow that on a
 `--no-local` laptop (it installs Ollama and fetches a 2.3 GB model only the in-process path uses); run
 the `--provider` check.
@@ -366,7 +371,9 @@ llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np
 # .env: OPENAI_COMPAT_BASE_URL=http://localhost:8081
 python3 src/preflight.py --provider openai-compat --one-line
 ```
-<sub>Source: `src/preflight.py` `compat_base` (explicit provider honours the configured URL verbatim). Not run here.</sub>
+Always pass `--port` explicitly: newer llama.cpp builds announce a different default port, and the
+plain survey only probes `:8080` and `:1234`.
+<sub>Source: `src/preflight.py` `compat_base` (explicit provider honours the configured URL verbatim); llama-server's startup notice. Not run here.</sub>
 
 ---
 
@@ -410,7 +417,7 @@ offline mode turns that into a network-sounding error. `cd` back to the repo roo
 
 ### E4. `openai.NotFoundError: Error code: 404` / `openai.APIConnectionError: Connection error.`
 - **404** → your base URL has a path (usually `/v1`). Use the bare origin ([C2](#c2-what-exactly-is-a-bare-origin)). For LM Studio also check the model id ([D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)); for Ollama, a 404 saying the model isn't found means the tag isn't pulled (`ollama pull phi4-mini`, [D4](#d4-ollama-ollama_model-not-pulled)).
-- **Connection error / `Connection refused`** → nothing is listening. Start your endpoint and re-run preflight ([D12](#d12-preflight-says-no-runnable-inference-path)).
+- **Connection error / `Connection refused`** → nothing is listening at that URL. On Ollama? Use `--infer ollama` — `openai-compat` calls `OPENAI_COMPAT_BASE_URL` (`:8080`), not Ollama's `:11434`. Otherwise start your endpoint and re-run preflight ([D12](#d12-preflight-says-no-runnable-inference-path)).
 <sub>Source: verified with `OPENAI_COMPAT_BASE_URL=http://localhost:8080/v1` and with llama-server stopped.</sub>
 
 ### E5. What should a successful run look like?
@@ -717,7 +724,7 @@ To reproduce the lab's numbers, point the agent at `src/rag_system.py`, `src/rag
 | Piece | Value in the POC |
 |---|---|
 | Corpus | 3 benign docs (cloud, ML, databases) + 1 poison doc covering load balancing, consistent hashing, microservices |
-| Chunking | **none** — each document is one chunk (the README's diagram shows a splitter; the code has none) |
+| Chunking | **none** — each document is one chunk (slide 10's pipeline shows "Chunk + split"; the POC has none) |
 | Embeddings | `sentence-transformers/all-MiniLM-L6-v2`, `normalize_embeddings=True`, 384-dim |
 | Vector store | Chroma, similarity search, `k = TOP_K_RETRIEVAL` (4). Slide 14 hardcodes `{"k": 4}`; the real code reads the env var |
 | Chain | `RetrievalQA`, `chain_type="stuff"`, `return_source_documents=True`, LangChain's default **chat** stuff prompt: retrieved docs in the **system** message, the question in the user message (compare with `--show-prompt`) |
@@ -736,8 +743,8 @@ To reproduce the lab's numbers, point the agent at `src/rag_system.py`, `src/rag
 
 ### I3. My agent's version shows the pirate in the *clean* run
 Two usual causes:
-1. Its detector matches substrings: `"ye" in text` fires on "layers" and "deployed", which both appear
-   in the POC's own clean answers. The POC uses a word-boundary regex (`\bye\b`). Read the flagged answer.
+1. Its detector matches substrings: `"ye" in text` fires inside words like "deployed" (in the POC's own
+   clean microservices answer) or "layers". The POC uses a word-boundary regex (`\bye\b`). Read the flagged answer.
 2. It keeps documents between phases — e.g. calls `Chroma.from_documents` twice against the same
    directory and collection — so poison from an earlier run is still indexed. The POC reuses one
    directory and collection name, but deletes and recreates the collection before each phase.
