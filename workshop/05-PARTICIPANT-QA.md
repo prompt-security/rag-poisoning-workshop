@@ -58,7 +58,7 @@ what older clones do instead.
 
 ### A2. The workshop docs mention `requirements.workshop.txt` / `requirements.txt`. I can't find them.
 `requirements.txt` was removed on 2026-09-01, when the POC moved to `pyproject.toml` + `uv.lock`
-(`uv sync`). `requirements.workshop.txt` (the POC#10 that 02 and 03 cite) never landed on `main`. The
+(`uv sync`). `requirements.workshop.txt` (the POC#10 that 03 still lists, struck through) never landed on `main`. The
 compiler-free path is `./setup.sh --no-local`, which skips the optional `local` extra
 (`llama-cpp-python`). Don't `pip install` anything by hand.
 <sub>Source: POC history; `setup.sh` (uv sync block); `pyproject.toml` `[project.optional-dependencies]`; 03 records the requirements file as superseded.</sub>
@@ -351,7 +351,11 @@ and prints the exact fix — with llama-server stopped, `--provider llama-server
 Older clones print `--install ollama --run; --download phi-4-mini` here instead — don't follow that on a
 `--no-local` laptop (it installs Ollama and fetches a 2.3 GB model only the in-process path uses); run
 the `--provider` check.
-<sub>Source: `src/preflight.py` `check_viable_path`; verified on `0e3a07e` with the endpoint down.</sub>
+**A `/v1` in `OPENAI_COMPAT_BASE_URL` lands here too.** `--one-line` prints only the first FAIL and drops
+the `# checks …` comments that would show the URL, so the cause is invisible on that line. The full report
+(`python3 src/preflight.py --provider llama-server`, no `--one-line`) shows
+`[WARN] OPENAI_COMPAT_BASE_URL is not a bare origin` with the fix ([C2](#c2-what-exactly-is-a-bare-origin)).
+<sub>Source: `src/preflight.py` `check_viable_path`, `report_one_line`, `check_base_url_shape`; verified on `0e3a07e` with the endpoint down; the `/v1` case seen in a helper's run on `0e3a07e`.</sub>
 
 ### D13. How do I install an inference engine?
 ```bash
@@ -636,8 +640,9 @@ run, but small edits swung it a lot. In our runs the "Editorial note" payload sc
 between its paragraphs and **1/5** with the same words and no blank lines — reproduced back to back on
 one server. Treat any single number as one sample: compare `Response:` lines, vary the phrasing or
 placement, and re-run. This fragility is the argument on slides 21 and 37: model resistance isn't a
-control you can rely on — and neither is a particular payload's success.
-<sub>Source: verified (two payload files differing only in blank lines, run back to back).</sub>
+control you can rely on — and neither is a particular payload's success. Helpers: the exact 4/5 file
+(and its sha256) is in [06](06-HELPER-AGENT-PROMPT.md) step 2h; drop its three blank lines for the 1/5 one.
+<sub>Source: verified (two payload files differing only in blank lines, run back to back); reproduced on a second helper laptop on `0e3a07e` (1/5 without the blank lines, 4/5 with them).</sub>
 
 ---
 
