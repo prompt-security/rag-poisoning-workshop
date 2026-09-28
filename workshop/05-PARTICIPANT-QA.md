@@ -5,9 +5,10 @@ Questions that come up when people follow the deck, point their own coding agent
 corpus, and run the `grep` check against their own inference endpoint. Written for the helpers in the
 room first, and for participants reading along.
 
-> **Verified where marked.** Entries whose source line says *verified* were run on a fresh clone of
-> `RAG_Poisoning_POC` `main` @ `f103694` (2026-09-27, macOS 26 arm64, `uv` 0.12, llama-server +
-> Phi-4-mini Q4_K_M), and quoted output is real output from that run. Everything else — Ollama, LM
+> **Verified where marked.** Entries whose source line says *verified* were run on fresh clones of
+> `RAG_Poisoning_POC` `main` (macOS 26 arm64, `uv` 0.12, llama-server + Phi-4-mini Q4_K_M): `f103694`
+> on 2026-09-27, and the setup, preflight and `--infer` entries again on `0e3a07e` on 2026-09-28.
+> Quoted output is real output from those runs. Everything else — Ollama, LM
 > Studio, Windows/WSL, install one-liners — comes from the cited source and says *not run here*. If your
 > clone is older, start with [A1](#a1-which-repo-and-which-commit-should-i-be-on).
 
@@ -25,10 +26,10 @@ with a green neighbour and follow the recorded run (slide 19) — see [K2](#k2-i
 | You see | Go to |
 |---|---|
 | `PREFLIGHT FAIL: Project dependencies -- uv sync; source .venv/bin/activate` right after setup worked | [B6](#b6-setup-succeeded-but-preflight-says-project-dependencies-fail) |
-| `PREFLIGHT FAIL: No runnable inference path -- … --install ollama --run; … --download phi-4-mini` | [D12](#d12-preflight-says-no-runnable-inference-path-and-tells-me-to-install-ollama-or-download-a-model) |
+| `PREFLIGHT FAIL: No runnable inference path -- … --provider llama-server; …` | [D12](#d12-preflight-says-no-runnable-inference-path) |
 | cmake / Xcode / `llama-cpp-python` build error during install | [B2](#b2-the-install-fails-building-llama-cpp-python-cmake--xcode--compiler-errors) |
 | `doesn't have a source distribution or wheel for the current platform` (Intel Mac, older macOS) | [B9](#b9-im-on-an-intel-mac-or-macos-13-or-older) |
-| `ModuleNotFoundError: No module named 'llama_cpp'` when running the demo | [E2](#e2-no-module-named-llama_cpp-when-i-run-the-demo) |
+| `❌ No endpoint selected` (or `No module named 'llama_cpp'` on older clones) | [E2](#e2-the-demo-says-no-endpoint-selected--no-module-named-llama_cpp) |
 | 404 / `/v1/v1` / `Connection refused` / `openai.APIConnectionError` | [E4](#e4-openainotfounderror-error-code-404--openaiapiconnectionerror-connection-error), [C2](#c2-what-exactly-is-a-bare-origin), [D1](#d1-which-endpoint-should-i-run) |
 | `We couldn't connect to 'https://huggingface.co'` / `LocalEntryNotFoundError` | [E3](#e3-it-fails-with-an-hf-couldnt-connect-to-huggingfaceco--localentrynotfounderror), [B5](#b5-the-embedding-model-wont-load-offline--couldnt-connect-to-huggingfaceco-but-my-internet-works) |
 | Demo ran, analysis says `0/5` but the answers clearly changed | [F2](#f2-my-payload-obviously-worked-but-the-analysis-says-0-of-5) |
@@ -50,11 +51,14 @@ git pull
 ./setup.sh --no-local
 git log -1 --oneline        # tell a helper this line if you ask for help
 ```
-<sub>Source: [02](02-PREFLIGHT-AND-ENDPOINTS.md) step 1; POC PR #13 (llama-cpp-python moved to the optional `local` extra and `uv.lock` updated to match, merged 2026-09-22 16:13 UTC). PR #15 (transformers 5.x lock bump) merged earlier the same day.</sub>
+Cloned before **2026-09-28 09:04 UTC**? Pull too: that update (POC #20) made setup create `.env`,
+tolerate a trailing slash, and print clearer preflight and `--infer` messages. C1, C2, D12 and E2 note
+what older clones do instead.
+<sub>Source: [02](02-PREFLIGHT-AND-ENDPOINTS.md) step 1; POC PR #13 (llama-cpp-python moved to the optional `local` extra and `uv.lock` updated to match, merged 2026-09-22 16:13 UTC). PR #15 (transformers 5.x lock bump) merged earlier the same day; POC PR #20 (setup fixes) merged 2026-09-28 09:04 UTC.</sub>
 
 ### A2. The workshop docs mention `requirements.workshop.txt` / `requirements.txt`. I can't find them.
 `requirements.txt` was removed on 2026-09-01, when the POC moved to `pyproject.toml` + `uv.lock`
-(`uv sync`). `requirements.workshop.txt` (the POC#10 that 02 and 03 cite) never landed on `main`. The
+(`uv sync`). `requirements.workshop.txt` (the POC#10 that 03 still lists, struck through) never landed on `main`. The
 compiler-free path is `./setup.sh --no-local`, which skips the optional `local` extra
 (`llama-cpp-python`). Don't `pip install` anything by hand.
 <sub>Source: POC history; `setup.sh` (uv sync block); `pyproject.toml` `[project.optional-dependencies]`; 03 records the requirements file as superseded.</sub>
@@ -155,28 +159,26 @@ a neighbour. *From `uv.lock`; not tested on such hardware.*
 ## C. Configuration (`.env`)
 
 ### C1. There's no `.env` file. Do I need one?
-Recommended, not required. Setup does **not** create it, even though it prints "will create
-defaults...". Copy the template first, then optionally let preflight repoint the endpoint lines:
+`./setup.sh` creates it from `.env.example` on first run (`📄 No .env found -- created it from
+.env.example`). Edit it for your endpoint ([C3](#c3-which-env-variables-matter-for-my-endpoint)), or let
+preflight rewrite the endpoint lines:
 ```bash
-cp .env.example .env
 python3 src/preflight.py --write-env llama-server   # or: --write-env ollama --model phi-4-mini / --write-env lmstudio
 ```
-Without `.env` the demo still runs on built-in defaults: it prints `Top K Retrieval: DISABLED (using
-default ChromaDB retrieval)`, which still means k=4, and it logs at INFO level (a noisy console).
-`--write-env` on its own writes only the endpoint lines, so run it *after* the `cp`. It backs up an
-existing `.env` to `.env.bak`. (`cp`: verified. `--write-env`: not run here.)
-<sub>Source: POC `setup.sh` (only reads `.env`), `src/config.py` defaults, `src/preflight.py` `do_write_env`; LangChain Chroma default k=4.</sub>
+`--write-env` backs up the old file to `.env.bak` (not run here). Older clones don't create `.env`:
+`cp .env.example .env` — without it the demo still runs, but logs at INFO level and prints
+`Top K Retrieval: DISABLED` (which still means k=4).
+<sub>Source: POC `setup.sh`, `src/config.py`, `src/preflight.py` `do_write_env`; creation verified on `0e3a07e`.</sub>
 
 ### C2. What exactly is a "bare origin"?
 `scheme://host:port` and nothing else — `http://localhost:8080`. The code appends `/v1` itself, so
-`http://localhost:8080/v1` becomes `/v1/v1` and 404s (verified). A trailing slash becomes `//v1` (the
-workshop notes saw a 307 redirect; not reproduced here). Preflight flags the `/v1` case:
+`http://localhost:8080/v1` becomes `/v1/v1` and 404s (verified). Preflight flags that case:
 ```
 [WARN] OPENAI_COMPAT_BASE_URL is not a bare origin
 ```
-It does **not** flag a trailing slash — it strips it before probing, so preflight can pass while the
-demo still requests `//v1`. Remove the slash by hand.
-<sub>Source: POC `src/llm_factory.py` (`f"{base}/v1"`), `src/preflight.py` `check_base_url_shape`; slide 4.</sub>
+A trailing slash is fine: the demo strips it (`http://localhost:8080/` ran 5/5, verified). Older clones
+turn it into `//v1` while preflight still passes — remove the slash by hand there.
+<sub>Source: POC `src/config.py`, `src/llm_factory.py` (`f"{base}/v1"`), `src/preflight.py` `check_base_url_shape`; slide 4.</sub>
 
 ### C3. Which `.env` variables matter for my endpoint?
 
@@ -278,8 +280,9 @@ into HTTP 400. Use `-np 1` on a laptop, or keep `-c ≥ 2048 × np`.
 ### D7. Can I use OpenAI / Azure / Groq / my company's gateway / any API-key endpoint?
 Not as shipped. `--infer openai-compat` sends a placeholder key (`dummy-key`), so any endpoint that
 needs a real key will reject it. The only keyed provider is `--infer deepseek` (key in `.keys`). The
-workshop is scoped to a model **you run yourself**. A hosted endpoint after the session means adding
-auth in `src/llm_factory.py` *and* `src/preflight.py` — not a lab step.
+workshop is scoped to a model **you run yourself**. (`.keys.example` has a commented `OPENAI_API_KEY`
+line, but nothing reads it.) A hosted endpoint after the session means adding auth in
+`src/llm_factory.py` *and* `src/preflight.py` — not a lab step.
 <sub>Source: POC `src/llm_factory.py` `_create_openai_compat_llm` docstring; workshop [README](../README.md) scope note.</sub>
 
 ### D8. What should `preflight --one-line` print when I'm ready?
@@ -302,13 +305,13 @@ and endpoint users can ignore them. Two exceptions:
 ### D10. Preflight FAIL lines and their fixes
 Most rows below are FAIL only when you pass an explicit `--provider`. A plain `python3 src/preflight.py`
 or `--one-line` survey shows them as INFO/WARN, and its only endpoint FAIL is `No runnable inference
-path` ([D12](#d12-preflight-says-no-runnable-inference-path-and-tells-me-to-install-ollama-or-download-a-model)).
+path` ([D12](#d12-preflight-says-no-runnable-inference-path)).
 
 | Title | Meaning | Fix |
 |---|---|---|
 | `Project dependencies` | venv not active or setup not run | `source .venv/bin/activate` (or `./setup.sh --no-local`) |
 | `Embedding model not cached` | MiniLM not in `./models/embedding` | `./setup.sh --no-local`, run from repo root |
-| `No runnable inference path` | no endpoint answered | [D12](#d12-preflight-says-no-runnable-inference-path-and-tells-me-to-install-ollama-or-download-a-model) |
+| `No runnable inference path` | no endpoint gave a usable completion | [D12](#d12-preflight-says-no-runnable-inference-path) |
 | `llama-server not installed` / `ollama not installed` / `LM Studio CLI not installed` | engine missing | [D13](#d13-how-do-i-install-an-inference-engine) |
 | `llama-server not running` / `ollama daemon not reachable` / `LM Studio server not running` | installed, not started | start it ([D1](#d1-which-endpoint-should-i-run), [D3](#d3-ollama-the-demo-quietly-stops-working--the-poison-never-seems-to-reach-the-model), [D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)) |
 | `OLLAMA_MODEL not pulled` | tag missing | `ollama pull phi4-mini` |
@@ -319,12 +322,14 @@ path` ([D12](#d12-preflight-says-no-runnable-inference-path-and-tells-me-to-inst
 | `Python 3.x` | FAIL below 3.9 | activate the venv (it has 3.11) |
 
 WARNs don't block. `Possible SILENT truncation` (from `--deep`) means raise the context ([D3](#d3-ollama-the-demo-quietly-stops-working--the-poison-never-seems-to-reach-the-model)).
-`Python 3.13+` (WARN) and `OPENAI_COMPAT_BASE_URL is not a bare origin` (WARN, [C2](#c2-what-exactly-is-a-bare-origin)) mean you're outside the venv or have a path in the URL.
+`Python 3.13+` (WARN) and `OPENAI_COMPAT_BASE_URL is not a bare origin` (WARN, [C2](#c2-what-exactly-is-a-bare-origin)) mean you're outside the venv or have a path in the URL — for the Python one just activate the venv (its `uv venv` suggestion fails once `.venv` exists).
+Other titles (`Completion response malformed`, `Model unsuitable for the demo`, `OLLAMA_CONTEXT_LENGTH is only set in .env`, `OPENAI_COMPAT_BASE_URL is unparseable`, `Local GGUF failed digest check`, `Endpoint is slow`, `llama-server context tight`) print their own fix under the title in the full report (`python3 src/preflight.py`).
 <sub>Source: `src/preflight.py` Result titles.</sub>
 
-### D11. Slide 4's `curl -s $OLLAMA_BASE_URL/v1/models` prints nothing
-That variable lives in `.env`, not in your shell, so the URL is empty and curl fails silently (exit 3).
-Use the literal URL — or better, just use preflight:
+### D11. `curl -s $OLLAMA_BASE_URL/v1/models` prints nothing
+(From older copies of slide 4; the current slide uses preflight.) That variable lives in `.env`, not
+in your shell, so the URL is empty and curl fails silently (exit 3). Use the literal URL — or better,
+just use preflight:
 ```bash
 curl -s http://localhost:8080/v1/models        # llama-server
 curl -s http://localhost:11434/v1/models       # Ollama
@@ -332,23 +337,25 @@ python3 src/preflight.py --one-line            # the real readiness check
 ```
 <sub>Source: slide 4; verified in a fresh shell.</sub>
 
-### D12. Preflight says `No runnable inference path` and tells me to install Ollama or download a model
-When nothing is serving, the one-line survey prints:
+### D12. Preflight says `No runnable inference path`
+No endpoint gave a usable answer. The one-line survey lists the check for each engine:
 ```
-PREFLIGHT FAIL: No runnable inference path -- python3 src/preflight.py --install ollama --run; python3 src/preflight.py --download phi-4-mini
+PREFLIGHT FAIL: No runnable inference path -- python3 src/preflight.py --provider llama-server; python3 src/preflight.py --provider lmstudio; python3 src/preflight.py --provider ollama
 ```
-Don't follow that blindly on a `--no-local` laptop: `--download` fetches a 2.3 GB GGUF that only the
-in-process path uses, and `--install ollama --run` *installs* Ollama (Homebrew on macOS, the curl|sh
-script with sudo on Linux) — and on macOS then runs `ollama serve` in the foreground, which looks like a
-hang. Ask preflight about **your** engine instead, which gives the real cause and fix (it probes the
-`OPENAI_COMPAT_BASE_URL` / `OLLAMA_BASE_URL` in your `.env`, so set those first — [C3](#c3-which-env-variables-matter-for-my-endpoint)):
-```bash
-python3 src/preflight.py --provider openai-compat --one-line    # llama-server
-python3 src/preflight.py --provider ollama --one-line           # Ollama
-python3 src/preflight.py --provider lmstudio --one-line         # LM Studio
-```
-With llama-server stopped, the first one printed `PREFLIGHT FAIL: llama-server not running -- llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np 1 -cb --host 127.0.0.1 --port 8080 -a local-model --jinja`.
-<sub>Source: `src/preflight.py` `check_viable_path`, `report_one_line`; verified with the endpoint down.</sub>
+Run the one for **your** engine. It probes the URL in your `.env` ([C3](#c3-which-env-variables-matter-for-my-endpoint))
+and prints the exact fix — with llama-server stopped, `--provider llama-server --one-line` printed
+`PREFLIGHT FAIL: llama-server not running -- llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np 1 -cb --host 127.0.0.1 --port 8080 -a local-model --jinja`.
+**LM Studio:** point `.env` at it first (`python3 src/preflight.py --write-env lmstudio`, then set
+`OPENAI_COMPAT_MODEL` to the loaded id — [D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)).
+`--provider lmstudio` probes whatever `OPENAI_COMPAT_BASE_URL` says, and the template says `:8080`.
+Older clones print `--install ollama --run; --download phi-4-mini` here instead — don't follow that on a
+`--no-local` laptop (it installs Ollama and fetches a 2.3 GB model only the in-process path uses); run
+the `--provider` check.
+**A `/v1` in `OPENAI_COMPAT_BASE_URL` lands here too.** `--one-line` prints only the first FAIL and drops
+the `# checks …` comments that would show the URL, so the cause is invisible on that line. The full report
+(`python3 src/preflight.py --provider llama-server`, no `--one-line`) shows
+`[WARN] OPENAI_COMPAT_BASE_URL is not a bare origin` with the fix ([C2](#c2-what-exactly-is-a-bare-origin)).
+<sub>Source: `src/preflight.py` `check_viable_path`, `report_one_line`, `check_base_url_shape`; verified on `0e3a07e` with the endpoint down; the `/v1` case seen in a helper's run on `0e3a07e`.</sub>
 
 ### D13. How do I install an inference engine?
 ```bash
@@ -368,7 +375,9 @@ llama-server -hf bartowski/microsoft_Phi-4-mini-instruct-GGUF:Q4_K_M -c 4096 -np
 # .env: OPENAI_COMPAT_BASE_URL=http://localhost:8081
 python3 src/preflight.py --provider openai-compat --one-line
 ```
-<sub>Source: `src/preflight.py` `compat_base` (explicit provider honours the configured URL verbatim). Not run here.</sub>
+Always pass `--port` explicitly: newer llama.cpp builds announce a different default port, and the
+plain survey only probes `:8080` and `:1234`.
+<sub>Source: `src/preflight.py` `compat_base` (explicit provider honours the configured URL verbatim); llama-server's startup notice. Not run here.</sub>
 
 ---
 
@@ -382,21 +391,25 @@ python src/rag_poisoning_demo.py --infer openai-compat                 # llama-s
 python src/rag_poisoning_demo.py --infer ollama                        # Ollama
 python src/rag_poisoning_demo.py --infer openai-compat --show-prompt   # also print each assembled prompt
 ```
-The slides only show `--infer openai-compat`. **Ollama users use `--infer ollama`.** `python` and
-`python3` are the same once the venv is active. setup.sh's "next steps" list only `ollama`/`deepseek` —
-llama-server and LM Studio users still use `--infer openai-compat`. (Only the llama-server path was run
-here; the Ollama and LM Studio lines come from the argparse source.)
+**Ollama users use `--infer ollama`** (slides 17 and 35 show both). `python` and `python3` are the same
+once the venv is active. (Only the llama-server path was run here; the Ollama and LM Studio lines come
+from the argparse source.)
 <sub>Source: POC `src/rag_poisoning_demo.py` argparse; slides 17, 35; verified for llama-server.</sub>
 
-### E2. `No module named 'llama_cpp'` when I run the demo
-You left off `--infer`, or used `--infer cpu`/`cuda`/`darwin` (the POC README lists these). Anything
-other than an endpoint provider takes the in-process GGUF path, which a `--no-local` install doesn't
-include. Real error:
+### E2. The demo says `No endpoint selected` / `No module named 'llama_cpp'`
+You left off `--infer`, or used `--infer cpu`/`cuda`/`darwin`: those take the in-process path, which a
+`--no-local` install doesn't include. The demo stops right away and names the flags:
 ```
-ImportError: Could not import llama-cpp-python library. Please install the llama-cpp-python library to use this embedding model: pip install llama-cpp-python
+❌ No endpoint selected (no --infer, or --infer cpu/cuda/darwin), so the demo
+   would run the model in-process with llama-cpp-python, which this install
+   doesn't have (./setup.sh --no-local skips it). Pick your endpoint instead:
+     llama-server / LM Studio:  python3 src/rag_poisoning_demo.py --infer openai-compat
+     Ollama:                    python3 src/rag_poisoning_demo.py --infer ollama
+     DeepSeek (key in .keys):   python3 src/rag_poisoning_demo.py --infer deepseek
 ```
-Don't pip-install it — use `--infer openai-compat` (or `--infer ollama`).
-<sub>Source: POC `src/rag_poisoning_demo.py` (`provider=None` → `LlamaCpp`); verified with no `--infer`.</sub>
+Older clones fail later with `ImportError: Could not import llama-cpp-python library … pip install
+llama-cpp-python` — don't pip-install it; add `--infer openai-compat` (or `--infer ollama`).
+<sub>Source: POC `src/rag_poisoning_demo.py`; verified on `0e3a07e` with no `--infer`.</sub>
 
 ### E3. It fails with an HF "couldn't connect to huggingface.co" / `LocalEntryNotFoundError`
 You ran it from inside `src/`. `.env` is still found (python-dotenv searches upward), but the paths in
@@ -408,7 +421,7 @@ offline mode turns that into a network-sounding error. `cd` back to the repo roo
 
 ### E4. `openai.NotFoundError: Error code: 404` / `openai.APIConnectionError: Connection error.`
 - **404** → your base URL has a path (usually `/v1`). Use the bare origin ([C2](#c2-what-exactly-is-a-bare-origin)). For LM Studio also check the model id ([D5](#d5-lm-studio-404--openai_compat_model-is-not-loaded)); for Ollama, a 404 saying the model isn't found means the tag isn't pulled (`ollama pull phi4-mini`, [D4](#d4-ollama-ollama_model-not-pulled)).
-- **Connection error / `Connection refused`** → nothing is listening. Start your endpoint and re-run preflight ([D12](#d12-preflight-says-no-runnable-inference-path-and-tells-me-to-install-ollama-or-download-a-model)).
+- **Connection error / `Connection refused`** → nothing is listening at that URL. On Ollama? Use `--infer ollama` — `openai-compat` calls `OPENAI_COMPAT_BASE_URL` (`:8080`), not Ollama's `:11434`. Otherwise start your endpoint and re-run preflight ([D12](#d12-preflight-says-no-runnable-inference-path)).
 <sub>Source: verified with `OPENAI_COMPAT_BASE_URL=http://localhost:8080/v1` and with llama-server stopped.</sub>
 
 ### E5. What should a successful run look like?
@@ -488,8 +501,8 @@ re-measured here). Warm it with preflight first, which sends a short completion.
 on a slow machine — it just starts over.
 <sub>Source: [02](02-PREFLIGHT-AND-ENDPOINTS.md) failure modes; verified llama-server timings.</sub>
 
-### E13. Slide 4 says to run `python test_setup.py --no-local`. Is that enough?
-No. It only checks dependencies, the embedding model and Chroma — it never contacts your endpoint, and
+### E13. Is `python test_setup.py --no-local` enough?
+(Older copies of slide 4 suggest it.) No. It only checks dependencies, the embedding model and Chroma — it never contacts your endpoint, and
 it ends by suggesting "Ollama, DeepSeek" whatever you run. Use preflight as the readiness check
 ([D8](#d8-what-should-preflight---one-line-print-when-im-ready)).
 <sub>Source: POC `test_setup.py`; slide 4; verified (`Setup verification successful!` with no endpoint check).</sub>
@@ -500,6 +513,12 @@ parallel runs (or your agent's PoC pointed at the same folder) break or mix resu
 or give the second run its own store: `VECTOR_DB_PATH=./data/chroma_b python src/rag_poisoning_demo.py …`.
 *Not run here.*
 <sub>Source: POC `src/rag_system.py` (`collection_name="rag_demo"`, delete-and-recreate), `src/config.py` `vector_db_path`.</sub>
+
+### E15. After "Demo completed successfully!" I see `libc++abi: terminating … recursive_mutex lock failed` (exit 134)
+A native library crashing while Python shuts down, after the demo has already finished. The results
+printed above it are valid. We saw it once in about 26 runs on macOS (a `--show-prompt` run), and the
+same command passed on every re-run. Ignore it, or re-run if you need a clean exit code.
+<sub>Source: verified on `0e3a07e` (one occurrence, then 6 clean re-runs).</sub>
 
 ---
 
@@ -574,8 +593,8 @@ from your document, not to cause harm. No exfiltration, credential or tool-use p
 against the endpoint you run yourself.
 <sub>Source: slides 33, 36; [CONTRIBUTING.md](../CONTRIBUTING.md).</sub>
 
-### G3. Slide 36 says "check it lands in the top-k" — how, when k=4 and there are 4 docs?
-At the default k=4 your document is **always** retrieved, so lever 2 is automatic. You can still read
+### G3. How do I see lever 1 (semantic width) when k=4 and there are 4 docs?
+At the default k=4 your document is **always** retrieved, so lever 2 is automatic (slide 36). You can still read
 lever 1 from the *rank* of `custom_payload.md` in each `Sources:` line (#1 = strongest match), the way
 slide 31 does. To see width decide inclusion, lower k for a run:
 ```bash
@@ -609,8 +628,9 @@ often cut off (short answers keep it). Use "start every answer with…" or a who
 pirate) instead. *Not run here.*
 <sub>Source: POC `src/llm_factory.py` (`max_tokens=128`); slide 36.</sub>
 
-### G7. Slide 36's `$EDITOR my_poison.txt` says "command not found"
-`$EDITOR` isn't set in your shell. Use any editor directly: `nano my_poison.txt`, `vim my_poison.txt`,
+### G7. `$EDITOR my_poison.txt` says "command not found"
+(From older copies of slide 36; the current slide uses `nano`.) `$EDITOR` isn't set in your shell. Use
+any editor directly: `nano my_poison.txt`, `vim my_poison.txt`,
 or `code my_poison.txt`. Save it in the repo root (or pass its full path to `--payload-file`).
 <sub>Source: slide 36.</sub>
 
@@ -620,15 +640,16 @@ run, but small edits swung it a lot. In our runs the "Editorial note" payload sc
 between its paragraphs and **1/5** with the same words and no blank lines — reproduced back to back on
 one server. Treat any single number as one sample: compare `Response:` lines, vary the phrasing or
 placement, and re-run. This fragility is the argument on slides 21 and 37: model resistance isn't a
-control you can rely on — and neither is a particular payload's success.
-<sub>Source: verified (two payload files differing only in blank lines, run back to back).</sub>
+control you can rely on — and neither is a particular payload's success. Helpers: the exact 4/5 file
+(and its sha256) is in [06](06-HELPER-AGENT-PROMPT.md) step 2h; drop its three blank lines for the 1/5 one.
+<sub>Source: verified (two payload files differing only in blank lines, run back to back); reproduced on a second helper laptop on `0e3a07e` (1/5 without the blank lines, 4/5 with them).</sub>
 
 ---
 
 ## H. The `grep` check and alerting
 
 ### H1. What's the exact grep for the bonus challenge?
-It isn't on a slide; it's in the run-of-show (Beat C):
+It's on slide 36 and in the run-of-show (Beat C):
 ```bash
 grep -iE 'system|ignore previous|\[' my_poison.txt
 ```
@@ -708,7 +729,7 @@ To reproduce the lab's numbers, point the agent at `src/rag_system.py`, `src/rag
 | Piece | Value in the POC |
 |---|---|
 | Corpus | 3 benign docs (cloud, ML, databases) + 1 poison doc covering load balancing, consistent hashing, microservices |
-| Chunking | **none** — each document is one chunk (the README's diagram shows a splitter; the code has none) |
+| Chunking | **none** — each document is one chunk (slide 10's pipeline shows "Chunk + split"; the POC has none) |
 | Embeddings | `sentence-transformers/all-MiniLM-L6-v2`, `normalize_embeddings=True`, 384-dim |
 | Vector store | Chroma, similarity search, `k = TOP_K_RETRIEVAL` (4). Slide 14 hardcodes `{"k": 4}`; the real code reads the env var |
 | Chain | `RetrievalQA`, `chain_type="stuff"`, `return_source_documents=True`, LangChain's default **chat** stuff prompt: retrieved docs in the **system** message, the question in the user message (compare with `--show-prompt`) |
@@ -727,8 +748,8 @@ To reproduce the lab's numbers, point the agent at `src/rag_system.py`, `src/rag
 
 ### I3. My agent's version shows the pirate in the *clean* run
 Two usual causes:
-1. Its detector matches substrings: `"ye" in text` fires on "layers" and "deployed", which both appear
-   in the POC's own clean answers. The POC uses a word-boundary regex (`\bye\b`). Read the flagged answer.
+1. Its detector matches substrings: `"ye" in text` fires inside words like "deployed" (in the POC's own
+   clean microservices answer) or "layers". The POC uses a word-boundary regex (`\bye\b`). Read the flagged answer.
 2. It keeps documents between phases — e.g. calls `Chroma.from_documents` twice against the same
    directory and collection — so poison from an earlier run is still indexed. The POC reuses one
    directory and collection name, but deletes and recreates the collection before each phase.

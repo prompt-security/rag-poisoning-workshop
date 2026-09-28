@@ -39,8 +39,8 @@
 
 4. **Configure `.env`**: `cp .env.example .env` if you don't have one, then set the lines for your
    endpoint (runtimes table below). **Base URL = BARE ORIGIN**: no `/v1` suffix
-   (code appends it → `/v1/v1` → 404) and no trailing slash (the demo turns it into `//v1` → 307, while preflight strips it and can
-   still PASS — remove it by hand).
+   (code appends it → `/v1/v1` → 404) and no trailing slash (current `main` strips one; older clones turn it into `//v1` → 307 while
+   preflight still passes).
 
 5. **Run the self-check (inside the venv) and report:**
    ```bash

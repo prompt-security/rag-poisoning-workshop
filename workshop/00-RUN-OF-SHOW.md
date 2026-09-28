@@ -55,9 +55,8 @@ query eats the 16–25 s cold-start. No shared endpoint, no shared fallback.
   (venv active: `source .venv/bin/activate`). Say it once: **base URL = BARE ORIGIN — no `/v1`, no
   trailing slash.**
 - **TA / co-instructor:** owns red-light triage — anyone not printing `PREFLIGHT PASS` applies the
-  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10 — for `No runnable inference
-  path`, run the `--provider <engine>` check from D12, not the line's own suggestion) and re-runs;
-  still red → pair with a
+  fix 05-PARTICIPANT-QA gives for that FAIL line ("Fast triage", D10; for `No runnable inference
+  path`, the `--provider <engine>` check it lists — D12) and re-runs; still red → pair with a
   green neighbor and follow the recorded run (slide 19).
 - **Participants:** run `python3 src/preflight.py --one-line` inside the venv → confirm `PREFLIGHT
   PASS` (this warms your endpoint).
@@ -175,7 +174,7 @@ just means fewer iterations, not a room-wide desync.
 - Absorb overrun; take the best two or three payloads from the room and read them out.
 - **Honest homework caveat:** "The demo you ran is patched. Read the known-quirks section in the
   workshop README and see how the hardcoded `llama3:8b-instruct-q5_0` would 404 you, how the forced
-  `TRANSFORMERS_OFFLINE` flag misleads you, and how a 6-word regex overcounts success — those defects
+  `TRANSFORMERS_OFFLINE` flag misleads you, and how a 6-word regex miscounts success (it misses any non-pirate persona) — those defects
   are themselves the lesson."
 - **Closing line:** *"A document in your RAG corpus is not data the model reads — it is code the
   model may run, and it persists until you evict the embedding."*
