@@ -1,4 +1,4 @@
-<div class="kicker">The load-bearing slide · do not skip</div>
+<div class="kicker">The load-bearing slide 1 · do not skip</div>
 
 # At generation time, it's all one string
 

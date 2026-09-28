@@ -6,16 +6,18 @@
 <div>
 
 ```bash
+source .venv/bin/activate   # once per terminal
 # run the shipped demo against YOUR endpoint:
 # builds corpus → clean run → poisoned run
 python src/rag_poisoning_demo.py --infer openai-compat
+# on Ollama: --infer ollama
 ```
 
 <div class="mt-4 small space-y-2">
 
 - It runs clean first, then poisoned — **watch the same question change.**
 - **Check your prediction.** Did the poisoned run go pirate?
-- ~2–3 s/query local, 15–30 s shared. Slow is queueing, not a hang.
+- ~0.3–2 s/query (Phi-4-mini, Apple Silicon). A slow start is loading, not a hang.
 
 </div>
 </div>

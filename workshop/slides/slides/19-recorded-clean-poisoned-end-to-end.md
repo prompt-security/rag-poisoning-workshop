@@ -1,7 +1,3 @@
----
-layout: center
----
-
 <div class="kicker">The canonical run · projected reference</div>
 
 # Recorded: clean → poisoned, end to end

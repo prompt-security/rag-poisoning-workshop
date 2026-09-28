@@ -1,11 +1,7 @@
----
-layout: center
-class: text-center
----
+<div class="kicker">The load-bearing slide 2 · syllogism</div>
 
-<h2 class="absolute -left-[9999px]">The syllogism</h2>
+# At generation time, it's all one string
 
-<div class="kicker">The syllogism</div>
 
 <div class="text-left max-w-2xl mx-auto space-y-4 text-lg mt-4">
 

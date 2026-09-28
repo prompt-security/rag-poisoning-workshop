@@ -6,8 +6,9 @@
 <div>
 
 ```bash
+source .venv/bin/activate   # once per terminal
 # the shipped clean-vs-poisoned demo,
-# pointed at YOUR endpoint
+# pointed at YOUR endpoint (Ollama: --infer ollama)
 python src/rag_poisoning_demo.py --infer openai-compat
 
 # see the assembled prompt + retrieved chunks
@@ -19,7 +20,7 @@ python src/rag_poisoning_demo.py --infer openai-compat \
 
 - Watch it build the corpus, run clean, then run poisoned.
 - `--show-prompt` prints the prompt with the injected line **inside** `{context}` — the thing you learned to look for.
-- ~2–3 s/query local, 15–30 s shared.
+- ~0.3–2 s/query locally (Phi-4-mini, Apple Silicon).
 
 </div>
 </div>

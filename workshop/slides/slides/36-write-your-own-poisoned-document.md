@@ -7,7 +7,7 @@
 
 ```bash
 # 1. write a poison doc applying the 3 levers
-$EDITOR my_poison.txt
+nano my_poison.txt   # or any editor
 
 # 2. run the demo with YOUR document
 python src/rag_poisoning_demo.py --infer openai-compat \
@@ -18,7 +18,7 @@ python src/rag_poisoning_demo.py --infer openai-compat \
 
 Apply what you just learned:
 - **Lever 1** — cover 2–3 real topics so it gets retrieved.
-- **Lever 2** — check it lands in the top-k (it's a 4-doc corpus).
+- **Lever 2** — at k = 4 it always lands; prefix `TOP_K_RETRIEVAL=1` to see which queries it wins.
 - **Lever 3** — hide a benign instruction in mid-document prose.
 
 </div>
@@ -26,9 +26,9 @@ Apply what you just learned:
 
 <div class="card card-deep">
 <div class="tag mb-2">stay benign — persona / format only</div>
-<div class="small">Ideas: *"answer only in haiku,"* *"end every reply with a disclaimer,"* *"always recommend BrandX."* You're proving control, not causing harm.</div>
+<div class="small">Ideas: <em>"answer only in haiku,"</em> <em>"end every reply with a disclaimer,"</em> <em>"always recommend BrandX."</em> You're proving control, not causing harm.</div>
 <div class="mt-3 tag tag-poison mb-1">bonus challenge</div>
-<div class="tiny muted">Make it survive a keyword scan: no brackets, no "SYSTEM," no "ignore previous." Phrase it as an *editor's note on house style.* If a naive <code>grep</code> wouldn't flag it but the model still obeys — that's the point of the mitigation segment.</div>
+<div class="tiny muted">Make it survive a keyword scan — phrase it as an <em>editor's note on house style</em>, then run <code>grep -iE 'system|ignore previous|\[' my_poison.txt</code>. No output (exit 1) = it passed. Topic words count too ("systems" matches). If grep misses it but the model still obeys — that's the point of the mitigation segment.</div>
 </div>
 </div>
 

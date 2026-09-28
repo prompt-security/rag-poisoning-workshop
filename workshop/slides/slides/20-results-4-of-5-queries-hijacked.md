@@ -16,6 +16,7 @@
 
 </div>
 <div class="tiny muted mt-2">Baseline before poisoning: <strong>0 / 5</strong>. The behavior is entirely attributable to the one added document.</div>
+<div class="tiny muted mt-1">Recorded at top-k = 3 (the repo's old default). At today's default k = 4 the poison is always retrieved — expect <strong>5 / 5</strong>.</div>
 </div>
 
 <div class="space-y-2">
@@ -28,5 +29,6 @@
 <!--
 The "summary of what happened" slide — all real data from the recorded run. Three beats on the right:
 potency (80%), the miss (retrieval-gating), the two subtleties. Do NOT claim 80% is a benchmark — n=5,
-one run, query set leans toward the poison's own topic. Say so if asked.
+one run, query set leans toward the poison's own topic. Say so if asked. Anyone who got 5/5 ran the
+default k=4; the recording was k=3 (Q&A E6).
 -->
