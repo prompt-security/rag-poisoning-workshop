@@ -1,0 +1,25 @@
+CITATION.cff
+  653c13f2dba81e5b 1-35,37
+RELEASING.md
+  653c13f2dba81e5b 27-30,33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "2.0.0",
+  "base_commit_sha": "9031ad92aff92080fbbced31b6d6c1a44a3cfdee",
+  "prompts": {
+    "653c13f2dba81e5b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "efd00a2c-0158-47e9-ac3a-19d6851bb99e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "David Abutbul <David.a@prompt.security>",
+      "messages": [],
+      "total_additions": 42,
+      "total_deletions": 2,
+      "accepted_lines": 41,
+      "overriden_lines": 1
+    }
+  }
+}
