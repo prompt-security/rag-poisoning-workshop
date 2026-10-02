@@ -10,7 +10,7 @@
    ```
    The two long-standing defects that made `main` unusable for anyone on Ollama, llama-server or LM
    Studio — no OpenAI-compatible provider at all, and `llm_factory.py` printing your configured model
-   then ignoring it, hardcoding `llama3:8b-instruct-q5_0` — were fixed by
+   then ignoring it, hardcoding `mistral:7b-instruct` — were fixed by
    prompt-security/RAG_Poisoning_POC#1, which also added `src/preflight.py`.
    **Cloned before 2026-09-22 16:13 UTC?** `git pull` and re-run setup (step 2): until then
    `llama-cpp-python` was a hard dependency, so even `--no-local` needed a compiler.

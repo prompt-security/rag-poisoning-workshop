@@ -18,7 +18,7 @@ class: text-center
 
 <div class="mt-10 tiny muted">Thank you. Questions? &nbsp;·&nbsp; there's a bonus slide on doing this at scale →</div>
 
-<div class="mt-4 tiny muted opacity-60">"The Poisoned Pill — Turning Your Crewmate into a Pirate" by Prompt Security · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · reuse it, adapt it, share alike. Logos and brand marks excluded.</div>
+<div class="mt-4 tiny muted opacity-60">"The Poisoned Pill — Turning Your Crewmate into a Pirate" by SentinelOne · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · reuse it, adapt it, share alike. Logos and brand marks excluded.</div>
 
 <!--
 Land the closing sentence even if you have 30 seconds. It's the one thing every person should be able

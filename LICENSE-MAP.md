@@ -59,7 +59,7 @@ genuinely ambiguous, open an issue and we will clarify it here.
 ## Attribution
 
 ```
-"The Poisoned Pill — Turning Your Crewmate into a Pirate" by Prompt Security,
+"The Poisoned Pill — Turning Your Crewmate into a Pirate" by SentinelOne,
 licensed under CC BY-SA 4.0.
 https://github.com/prompt-security/rag-poisoning-workshop
 ```
