@@ -73,9 +73,6 @@ npm run export:pptx     # PPTX (then run scripts/embed_pptx_videos.py to embed t
 The demo code accumulated a few rough edges before the workshop patches landed. They are worth
 knowing about, because each is a small, real RAG-security lesson:
 
-- **Hardcoded model** `mistral:7b-instruct` in `llm_factory.py` → 404s every Ollama / LM Studio user.
-  *Fixed on `main` (prompt-security/RAG_Poisoning_POC#1) — there is no separate workshop branch; the
-  model now reads from config, and a generic OpenAI-compatible provider was added.*
 - **Forced `TRANSFORMERS_OFFLINE=1`** in `config.py` → a cold embedding cache throws a misleading
   "no internet" error even when online. **Still forced, deliberately** (making it opt-in was judged a
   behavioral change not worth smuggling into the preflight PR) — `src/preflight.py` instead warns
