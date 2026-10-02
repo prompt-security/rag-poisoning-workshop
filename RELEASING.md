@@ -24,10 +24,13 @@ Two things happen automatically from GitHub Actions:
 # 1. make sure main is green and up to date
 git switch main && git pull
 
-# 2. tag with the new version (annotated tag)
+# 2. bump `version` and `date-released` in CITATION.cff to the new tag, and merge that to main
+#    before tagging, so the tagged commit cites itself correctly
+
+# 3. tag with the new version (annotated tag)
 git tag -a v1.1.0 -m "v1.1.0 — <one line summary>"
 
-# 3. push the tag — this triggers the release workflow
+# 4. push the tag — this triggers the release workflow
 git push origin v1.1.0
 ```
 

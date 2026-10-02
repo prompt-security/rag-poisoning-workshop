@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use or adapt this workshop in teaching, research or security training, please cite it as below."
+title: "The Poisoned Pill — Turning Your Crewmate into a Pirate"
+# Bump version and date-released with each release tag (see RELEASING.md).
+version: "1.1.1"
+date-released: "2026-09-28"
+abstract: >-
+  A 90-minute, instructor-led, hands-on workshop on RAG poisoning and
+  indirect prompt injection via vector-database embeddings. Participants
+  run the attack themselves against a small local model endpoint, write
+  their own payload, and defeat a naive defense. This repository holds the
+  workshop design (run-of-show, content outline, preflight guide, risk
+  register, participant Q&A) and the Slidev deck; the runnable demo lives
+  in prompt-security/RAG_Poisoning_POC.
+type: software
+# Dual-licensed by path (see LICENSE-MAP.md): the workshop content is
+# CC-BY-SA-4.0 and the build tooling is AGPL-3.0-only. CFF reads a list of
+# licenses as "OR", so only the content license is listed here.
+license: "CC-BY-SA-4.0"
+url: "https://prompt-security.github.io/rag-poisoning-workshop/"
+repository-code: "https://github.com/prompt-security/rag-poisoning-workshop"
+keywords:
+  - rag-poisoning
+  - retrieval-augmented-generation
+  - indirect-prompt-injection
+  - prompt-injection
+  - vector-database
+  - embeddings
+  - ai-security
+  - llm-security
+  - security-training
+  - workshop
+authors:
+  - given-names: David
+    family-names: Abutbul
+    affiliation: "SentinelOne"
+    orcid: "https://orcid.org/0009-0001-7883-3593"
